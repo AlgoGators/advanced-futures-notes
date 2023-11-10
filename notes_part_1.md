@@ -1,3 +1,227 @@
+<h1 style="text-align:center; font-weight: bold">Strategy 1: Buy and Hold, Single Contract</h1>
+
+Equity Market Risk — $`\beta`$
+
+You could buy every stock in the S&P 500 with weighting but costs time and money OR you could buy a futures contract that exposes you to the same assets and therefore gives you $`\beta`$.
+
+<h2 style="font-weight: bold">Strategy 1:</h2>
+<h3>Buy and Hold, Single Contract.</h3>
+
+<hr>
+
+Initially focus on S&P 500 as a way to get exposure to — and be rewarded for — equity market risk.
+
+<h3 style="text-align:center; font-weight: bold">Multipliers, Tick Size, and Tick Value</h3>
+
+For example, on the Chicago Mercantile Exchange there are two sizes of S&P 500 Futures:
+- e-mini future (ES), with a contract unit of $50, and a minimum price fluctuation of 0.25 index points = $12.50
+- e-micro future (MES), with a contract unit of $5, and a minimum price fluctuation of 0.25 index points = $1.25
+
+Contract Unit — the relationship between the price and value of different futures contracts. \
+e.g. if we hold an e-mini future, a 45 index point increase in the S&P 500 would result in a profitof $`45 \times \$50 = 2250`$.
+
+This multiplicative nature means contract unit can be referred to as the  ___multiplier___
+
+The notional exposure per contract is equal to its price times its multiplier.
+
+$`\text{Notional Exposure per Contract(\$)} \; = \; \text{Multiplier(\$)} \times \text{Price}`$
+
+OR if converting between currencies
+
+$`\text{Notional Exposure per Contract(Base Currency)} \; = \; \text{Multiplier} \times \text{Price} \times \text{FX rate}`$
+
+Minimum Price Fluctuation — smallest unit the price can be traded/quoted in. Referred to hereon as ___tick size___ 
+
+$`\text{Tick Value} \; = \; \text{Multiplier} \times \text{Tick Size}`$
+
+<h3 style="text-align:center; font-weight: bold">Futures expiries and rolling</h3>
+
+Front Month — contract with the nearest expiry
+
+<hr>
+
+<h3 style="text-align:center; font-weight: bold">Trading Costs</h3>
+
+Commission and Spread are both applicable for futures
+
+Mid Price — center between Bid and Ask (assuming no spread)
+
+$`\text{Spread Cost} \; = \; \text{Price Paid(Received)} - \text{Mid Price}`$
+
+<hr>
+
+Let's say that we currently hold the S&P 500 e-mini December 2023 future. It expires December 15th (3rd friday of the month). If we wish to maintain our position, we must roll into the next expiration (March 2024).
+
+Rolling involves the simultaneous selling and buying a nearer further out contract, respectively. 
+
+In our example we could sell the December contract on December 11th and then buy the March future that same day. We incurred spread costs and commissions for buying and selling each contract. 
+
+Carver mentions a calendar spread but we will ignore that for now.
+
+Profit (loss):
+- Costs (commission & spread) on intial trade and any other trade unrelated to rolling
+- Costs (commission & spread) on rolling trades
+- Profit/Loss from holding contracts between rolls (using mid prices)
+
+<h3 style="text-align:center; font-weight: bold">Back-Adjusting Futures Prices</h3>
+
+Back-adjustment — creating a price series that reflects the profit/loss from constantly holding & rolling a single contract but ignores trading costs.
+
+Back-adjusted price should remain constant over the roll. See Appendix B for a better understanding of the process.
+
+If we were to hold the S&P 500 (at appropriate weighting) our total return would look like this:
+
+$`\text{Total Return} \; = \; \text{Spot Returns} + \text{Dividends}`$
+
+We know for futures that through a no-arbitrage argument, the futures price at any time is equal to the spot price of the index, plus any expected dividends we will get before the future expires, minus any interest we would pay to borrow the money for buying stocks. This is known as __excess return__:
+
+$`\text{Excess Return} \; = \; \text{Total Return} - \text{Interest} = \text{Spot Return} + \text{Dividends} - \text{Interests}`$
+
+This extra component to excess return is also referred to as ___Carry___ (discussed in greater depth in Strategy 10). 
+
+<h3 style="text-align:center; font-weight: bold">Measuring Profits from a Trading Strategy</h3>
+
+Given a series of positions in contracts, $`N_t`$ (where a positive number means we're long, and negative, short) and a series of back-adjusted prices, $`P_t`$, the return in price points for time $`t`$ is: 
+
+$`\text{Return(Price Points)}, R^{points}_t, R_{p,t} \; = \; N_{t-1} \times (P_t - P_{t-1})`$
+
+For this strategy, buy and hold a single contract, our cumulative return equals the change in price over the full period ($`t = 0, t = T`$):
+
+$`\text{Cumulated Return(Price Points)}_{t=0,T} \; = \; (P_T - P_0)`$
+
+The return in currency of the future is:
+
+$`\text{Return(Currency of Future)}, R^{instr}_t, R_{i,t} \; = \; R^{points}_t \times \text{Multiplier}`$
+
+It follows that the return in base currency is:
+
+$`\text{Return(Base Currency)}, R^{base}_t \; = \; R^{instr}_t \times \text{FX rate}`$
+
+Account Curve — cumulative return series
+
+<hr>
+
+<h3 style="text-align:center; font-weight: bold">Backtesting</h3>
+
+Overfitting — choosing a strategy and ignoring other strategies because of an overtrust in the historical performance of some combination of actions (e.g. x cryptocurrency did well and we should only invest in said cryptocurrency and not diversify)
+
+Data mining — a strategy proven in a backtest but lacks any reasonable explanation, and therefore must be reduced to pure luck and should be ignored (unless a reasonable explanation can be determined)
+
+<hr>
+
+<h3 style="text-align:center; font-weight: bold">Capital</h3>
+
+For Strategy One, Carver assumes you hold the entire notional value of a future as cash reserves.
+
+$`\text{Returns(\%)}, \; R^{\%}_t \; = \; \Large{\frac{100 \times R^{base}_t}{Capital_{t-1}}}`$
+
+Note: since it is assumed that you maintain the entire notional value in reserves, the effective investment cost — the starting value in our return — is the capital set aside for this investment. Should less capital be held, as discussed in subsequent strategies, the denominator will decrease (with subsequent gains increasing).
+
+<h3 style="text-align:center; font-weight: bold">Assessing Performance Characteristics</h3>
+
+<h3 style="text-align:center">Annual Returns</h3>
+
+Carver makes the assumption that a business year is comprised of 256 days so it follows that an Annualized Daily Return (Annualized Return) for any unit is equal to 256 times the average of daily returns:
+
+$`\text{Annualized Return} \; = \; 256 \times \overline{\text{Daily Returns}}`$
+
+<h3 style="text-align:center">Risk and Standard Deviation</h3>
+
+Carver takes the symmetric view of risk — treating all returns as equally risky, whether they positive or negative — as opposed to the asymmetric view of risk — concerned only for negative returns. He justifies this decision with:
+
+1. If we include all available returns, our risk statistic is far more robust and less vulnerable to outliers
+2. When using daily returns, it is very likely that there will be many positive and negative returns
+3. Futures allow us to be both long and short, asymmetric risk leads to different values of risk depending on being short or long a position.
+
+Carver's preferred measure of risk is the standard deviation of returns. We could use max drawdowns — max cumulative loss experienced during backtest — and the Calmar Ratio in addition. 
+
+$`\text{Calmar Ratio} \; = \Large{\frac{\text{Average Annual Return}}{\text{Maximum Drawdown}}}`$
+
+The drawbacks to this measurement is that:
+- There is only one max drawdown per backtest therefore we are incredibly reliant on a single data point
+- It is dependent on data set length
+- It provides a false sense of security that the most we could lose is X dollars
+
+$`\text{Mean Return(returns} \;  r_1 \; ... \; r_T), \; r^* = \LARGE{\frac{r_t}{T} \;  + \frac{r_{t-1}}{T} \; + \; ... \; + \; \frac{r_1}{T}}`$
+
+$`\text{Standard Deviation of Returns}, \; \sigma \; = \; \LARGE{\sqrt{\frac{(r_T \; - \; r^*)^2}{T} \; + \; \frac{(r_{T-1} \; - \; r^*)^2}{T} \; + \; ... \; + \; \frac{(r_{1} \; - \; r^*)^2}{T}}}`$
+
+The mean return can be annualized by multiplying it by 256 and the standard deviation can be annualized by multiplying it by $`\sqrt{256}`$ which just so happens to be 16 (one of the reasons why Carver chose 256 business days).
+
+Values of annual and annualized standard deviation can vary as a result of certain assumptions not being met:
+
+1. When annualzing there was zero auto-correlation — yesterday's return had no impact on today's — which is rarely true for the markets (up days are followed by up days and down days are followed by down days).
+2. Daily returns have a symmetric, well-behaved distribution
+
+Despite this, annualized standard deviation is generally pretty close to annual standard deviation and any loss in accuracy is made up in the additional data points included in its estimate.
+
+<h3 style="text-align:center">Risk adjusted returns: Sharpe Ratio</h3>
+
+The Sharpe Ratio is our returns adjusted for risk, in other words high average returns are penalized for high risk (standard deviations) which means from a Sharpe Ratio perspective, you can't take excessive risk in order to get high returns.
+
+$`\text{Sharpe Ratio(SR)} \; = \; \Large{\frac{\text{Mean Return} - \text{Risk-Free Interest Rate}}{\text{Standard Deviation of Returns}}}`$
+
+The difference of Mean Return and Risk-Free Interest Rate is the Excess Returns. Recall to earlier in this strategy that through the no-arbitrage argument for futures, we only deal with Excess Returns as Dividends and Interest Rates are already factored into the price of futures; therefore:
+
+$`\text{SR(for futures)} \; = \; \Large{\frac{\text{Mean Excess Return}}{\text{Standard Deviation}}}`$
+
+$`\text{Annualized SR}, \; SR^* \; = \; SR \times \sqrt{256}`$
+
+<h3 style="text-align:center">Measuring Asymmetry: Skew</h3>
+
+Many are critical of the assumption of symmetrical returns that underpins standard deviation and by extension the Sharpe Ratio. The alternative to this would be the Sortino Ratio which uses the standard deviation of negative returns.
+
+$`\text{Sortino Ratio} \; = \; \Large{\frac{\text{Mean Return} \; - \; \text{Risk-Free Rate}}{\text{Standard Deviation of Negative Returns}}}`$
+
+Carver prefers to use the Sharpe Ratio and measure the symmetry of returns(skew) separately.
+
+Positive skew — more losing days than winning days but the losing days will be relatively small in magnitude \
+e.g. Holding an insurance policy: many small losses — paying premiums — and large gains — filing claims.
+
+Negative skew — more winning days than losing days but the winning days will be relatively small in magnitude \
+e.g. The insurance company offer insurance policies: many small gains — receiving premiums — and large losses — when claims are filed.
+
+Holding a negatively skewed asset could be a good way of taking on risk that others may shy away from.
+
+Monthly skew is a good balance between having enough data points and not being excessively variable.
+
+<h3 style="text-align:center">Measuring Fat Tails</h3>
+
+Equities typically have fat-tailed distributions where are extreme returns are more likely than in a Normal (Gaussian) Distribution.
+
+One way of measuring the tailedness of a distribution but Carver dislikes due to:
+1. It's hard to interpret
+2. Doesn't tell you if you have fat left or right tails
+3. Not a robust statistical measure so a few days could have significant impact
+
+Carver's preferred alternative is to compare returns to Normal Distribution. 
+
+1. Demean the series (subtract the daily mean return from every data point)
+2. Measure percentile of the demeaned results at various points
+3. Get 1st, 30th, 70th, 99th percentile returns
+
+The percentile ratios are as follows:
+
+- $`\text{Lower Percentile Ratio (of \% returns)} \; = \; \Large{\frac{\text{1st Percentile}}{\text{30th Percentile}}}`$
+
+- $`\text{Upper Percentile Ratio (of \% returns)} \; = \; \Large{\frac{\text{99th Percentile}}{\text{70th Percentile}}}`$
+
+For a Normal Distribution the ratio (our reference ratio) comes from the Inverse CDF function for each percentile: 
+
+- $`\text{Reference Ratio} \; = \; \Large{\frac{\text{Inverse CDF(0.99)}}{\text{Inverse CDF(0.70)}}} \; \normalsize{=} \; \Large{\frac{\text{Inverse CDF(0.01)}}{\text{Inverse CDF(0.30)}}} \;\normalsize{\approx \; \Large{4.4395}}`$
+
+Compare the reference ratio to each percentile ratio:
+
+- $`\text{Relative Lower Fat Tail Ratio, Lower Tail} \; = \; \Large{\frac{\text{Lower Percentile Ratio}}{\text{Reference Ratio}}}`$
+
+- $`\text{Relative Upper Fat Tail Ratio, Upper Tail} \; = \; \Large{\frac{\text{Upper Percentile Ratio}}{\text{Reference Ratio}}}`$
+
+<hr>
+
+<h1 style="text-align:center; font-weight: bold">Strategy 2: Buy and Hold with Risk Scaling</h1>
+
+<hr>
+
 <h1 style="text-align:center; font-weight: bold">Strategy 9: Multiple Trend Following Rules</h1>
 
 We want to trade as many instruments as possible as they give us access to many different kinds of risk premia. This is seen in many instruments when their returns are relatively uncorrelated. We don't have to just diversify across instruments but we can diversify across strategies.
@@ -300,9 +524,9 @@ Since carry is defined as an expected annual return divided by an annualized sta
 
 $`\text{Carry Forecast} \; = \; \Large{\frac{\text{Annualized Raw Carry}}{\sigma_p \; \times \; 16}}`$
 
-Carver uses this in reference to a trading strategy that can deal with less than perfect data:
+Carver uses this in reference to a truly robust trading strategy that can deal with less than perfect data:
 
-<p style="font-style:italic">Loose pants fit everyone — Perry Kaufman</p>. 
+<p style="font-style:italic">Loose pants fit everyone — Perry Kaufman</p>
 
 If you look at the carry for natural gas, it is incredibly seasonal, consistently going negative for certain months of the year because of seasonal changes to supply and demand and it's very difficult and expensive to store, amplifying seasonal effects. This seasonality is the main reason Carver only trades the December contract for Crude. Using a fixed month for seasonal commodities helps lessen this.
 
