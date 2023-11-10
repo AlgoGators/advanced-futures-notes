@@ -5,6 +5,8 @@ Adjust the size of a forecast to reflect the likely probability of a sudden reve
 <h2 style="font-weight: bold">Strategy 12:</h2>
 <h3>A variation on any strategy that uses EWMAC trend filters. Adjust the trend forecast according to the probability of a reversal.</h3>
 
+<hr>
+
 <h3 style="text-align:center; font-weight: bold">Forecasted and Actual Risk Adjusted Returns</h3>
 
 Remember from Part One that a forecast is an expected risk adjusted return. We know that these forecasts are broadly correct since they result in profitable strategies but there is a great deal we don't know. Carver noted that evidence in favor of using trend strength in a forecast to size positions was weeak, at least for the EWMAC64 and introduced forecast capping as a fait accompli.
@@ -43,19 +45,19 @@ Carver suggests this approach:
 
 The "double V" mapping works as follows, and replaces the normal forecast capping stage. Taking the original scaled forecast for the EWMAC2 trend filter, F:
 
-$F < -20: \text{Capped forecast} = 0 $ \
-$-20 < F < -10: \text{Capped forecast} = -40 - (2 \times F)$ \
-$-10 < F < +10: \text{Capped forecast} = 2 \times F$ \
-$+10 < F < +20: \text{Capped forecast} = +40 - (2 \times F)$ \
-$F > +20: \text{Capped forecast} = 0$
+$`F < -20: \text{Capped forecast} = 0 `$ \
+$`-20 < F < -10: \text{Capped forecast} = -40 - (2 \times F)`$ \
+$`-10 < F < +10: \text{Capped forecast} = 2 \times F`$ \
+$`+10 < F < +20: \text{Capped forecast} = +40 - (2 \times F)`$ \
+$`F > +20: \text{Capped forecast} = 0`$
 
 Extreme forecasts are reduced. The downside of doubling these modest forecasts is that it increases trading costs in order to meet the average absolute forecast value of 10.
 
 The "scaled and cap" mapping also replaces the normal forecast capping stage and prevents us from increasing our froecast once it reaches an absolute value of +15. The correct multiplier here is 1.25. Taking the original scaled forecast for the EWMAC4 or EWMAC64 trend filter, F:
 
-$F < -15: \text{Capped forecast} = -15 \times 1.25 = -18.75 $ \
-$-15 < F < +15: \text{Capped forecast} = 1.25 \times F$ \
-$F > +15: \text{Capped forecast} = +18.75$
+$`F < -15: \text{Capped forecast} = -15 \times 1.25 = -18.75 `$ \
+$`-15 < F < +15: \text{Capped forecast} = 1.25 \times F`$ \
+$`F > +15: \text{Capped forecast} = +18.75`$
 
 <h3 style="text-align:center; font-weight: bold">Evaluating the adjusted forecasts</h3>
 Very small impact, Carver, himself, wouldn't trade it but hard to justify the increased complexity.
@@ -75,7 +77,7 @@ But there is a big difference between a steadily rising market, such as the 2017
 
 We must find some way of defining the current level of volatility for a given instrument and it must be backward looking measure or we won't be able to use it to improve our trading. And it must be a different measure for each instrument, as crisis can be idiosyncratic as well as global. Carver uses a relatively simple measure, which calculates relative volatility of an instrument compared to its long run average. Let $\sigma_{\%i,t}$ be the current estimated level of percentage standard deviation of returns for a given market $i$, measured using the method developed in strategy three. Then the relative level of volatility $V_{i,t}$ is the current estimate divided by the ten-year rolling average. Assuming 256 business days in a year that would be:
 
-$V_{i,t} \; = \; \LARGE{\frac{\sigma_{\%i,t}}{mean(\sigma_{\%i,t - 2560}, \; \sigma_{\%i,t - 2559}, \; ..., \; \sigma_{\%i,t})}}$ 
+$`V_{i,t} \; = \; \LARGE{\frac{\sigma_{\%i,t}}{mean(\sigma_{\%i,t - 2560}, \; \sigma_{\%i,t - 2559}, \; ..., \; \sigma_{\%i,t})}}`$ 
 
 Carver takes the distribution of relative volatility. He uses anything below 25 percentile as low volatility, above 75 percentile as high, anything in between is medium.
 
@@ -94,20 +96,20 @@ We could stop trading when volatility hits the highest regimes but selling every
 
 We could just scale our position. This is the quantile point based on historical data for a given instrument:
 
-$Q_{i,t} \; = \; \text{Quantile of} \; V_{i,t} \; \text{in Distribution}(V_{i,0} \; ... \; V_{i,t})$
+$`Q_{i,t} \; = \; \text{Quantile of} \; V_{i,t} \; \text{in Distribution}(V_{i,0} \; ... \; V_{i,t})`$
 
 This will vary between 0 (lowest value we've seen so far) and 1 (for the highest). 0.5 would indicate this is the median point in the historical distribution. We then calculate a vol multiplier, M:
 
-$M_{i,t} \; = \; EWMA_{span=10}(2 \; - \; 1.5 \; \times \; Q_{i,t})$
+$`M_{i,t} \; = \; EWMA_{span=10}(2 \; - \; 1.5 \; \times \; Q_{i,t})`$
 
 If our volatility is especially low, with Q = 0.0 then we'd multiply our forecast by two, taking double the normal position. Conversely, if volatility is at historical highs, with Q = 1.0, we would halve our forecast. To reduce trading costs, apply a EWMA with a ten-day smooth.
 
-$\text{Raw EWMA(N) forecast}_{i,t} \; = \; \Large{\frac{(EWMA\_N_{i,t} \; - \; EWMA\_4N_{i,t})}{\sigma_{p,i,t}}}$
+$`\text{Raw EWMA(N) forecast}_{i,t} \; = \; \Large{\frac{(EWMA\_N_{i,t} \; - \; EWMA\_4N_{i,t})}{\sigma_{p,i,t}}}`$
 
-$\text{Adjusted raw EWMA(N) forecast}_{i,t} \; = \; \text{Raw forecast}_{N,i,t} \; \times \; M_{i,t}$
+$`\text{Adjusted raw EWMA(N) forecast}_{i,t} \; = \; \text{Raw forecast}_{N,i,t} \; \times \; M_{i,t}`$
 
 Whereas for carry:
 
-$\text{Smoothed Carry(Span) Forecast}_{i,t} \; = \; EWMA_{span}(\text{Carry Forecast}_{i,t})$
+$`\text{Smoothed Carry(Span) Forecast}_{i,t} \; = \; EWMA_{span}(\text{Carry Forecast}_{i,t})`$
 
-$\text{Adjusted Smoothed Carry(span) forecast}_{i,t} \; = \; \text{Smoothed carry(span) forecast}_{i,t} \; \times \; M_{i,t}$
+$`\text{Adjusted Smoothed Carry(span) forecast}_{i,t} \; = \; \text{Smoothed carry(span) forecast}_{i,t} \; \times \; M_{i,t}`$

@@ -2,15 +2,15 @@
 
 We want to trade as many instruments as possible as they give us access to many different kinds of risk premia. This is seen in many instruments when their returns are relatively uncorrelated. We don't have to just diversify across instruments but we can diversify across strategies.
 
-## __Strategy 9:__
-### Trade a portfolio of one or more instruments, each with positions scaled for a variable risk estimate. Calculate a number of forecasts for different speeds of trend filter. Place a position based on the combined forecast.
+<h2 style="font-weight: bold">Strategy 9:</h2>
+<h3>Trade a portfolio of one or more instruments, each with positions scaled for a variable risk estimate. Calculate a number of forecasts for different speeds of trend filter. Place a position based on the combined forecast.</h3>
 
 <hr>
 
-### Selecting a series of trend following filters
+<h3 style="text-align:center">Selecting a series of trend following filters</h3>
 Anything shorter than EWMAC(4,16) would be too expensive for most instruments. Anything longer than EWMAC(64,256) becomes too correlated with a long only strategy.
 
-- $\text{EWMAC}_n \; = \; \text{EWMAC}(n, \; 4n)$
+- $`\text{EWMAC}_n \; = \; \text{EWMAC}(n, \; 4n)`$
 
 For each variation, ues the same position sizing and management rules as strategy eight:
 - Calculate the raw crossover value for each trading rule variation
@@ -33,16 +33,17 @@ Need forecast scalars which Carver already calculated:
 
 <hr>
 
-### __Should we use a different measure of volatility for different trend speeds?__
+<h3 style="text-align:center">Should we use a different measure of volatility for different trend speeds?</h3>
 
 Whilst we may be using incredibly short or long EWMA's for our forecasts, EWMA's from 10-50, 30-35 in particular, are best at predicting future volatility.
 
 <hr>
 
-### The performance of different trend filters
-Historically EWMAC(16, 64) has been the most profitable. $\beta$ to the long strategy increases as the speed decreases. 
+<h3 style="text-align:center">The performance of different trend filters</h3>
 
-### Combining different forecasts
+Historically EWMAC(16, 64) has been the most profitable. $`\beta`$ to the long strategy increases as the speed decreases. 
+
+<h3 style="text-align:center">Combining different forecasts</h3>
 How do we combine these strategies, several options each at a different stage of the trade generation process:
 1. Averaging the raw forecasts before any capping takes place
 2. Averaging the capped forecasts
@@ -56,17 +57,17 @@ It follows that the preferred method is to take a weighted average of capped for
 
 For each trend filter _j_ traded, calculate a capped forecast at time _t_ using the equation below for a given instrument _i_:
 
-$\text{Raw Forecast}_{i,j,t} \; = \; \Large{\frac{\text{Fast EWMA}_{i,j,t} - \text{Slow EWMA}_{i,j,t}}{\sigma_{p,i,t}}}$
+$`\text{Raw Forecast}_{i,j,t} \; = \; \Large{\frac{\text{Fast EWMA}_{i,j,t} - \text{Slow EWMA}_{i,j,t}}{\sigma_{p,i,t}}}`$
 
 Apply filter specific forecast scalar (from table above), and a cap of 20 on the absolute value of the scaled forecast:
 
-$\text{Scaled Forecast}_{i,j,t} \; = \; \text{Raw Forecast}_{i,j,t} \; \times \; \text{Forecast Scalar}_j$
+$`\text{Scaled Forecast}_{i,j,t} \; = \; \text{Raw Forecast}_{i,j,t} \; \times \; \text{Forecast Scalar}_j`$
 
-$\text{Capped Forecast}, \; f_{i,j,t} \; = \; \text{max(min(Scaled Forecast}_{i,j,t},\; +20), \; -20)$
+$`\text{Capped Forecast}, \; f_{i,j,t} \; = \; \text{max(min(Scaled Forecast}_{i,j,t},\; +20), \; -20)`$
 
-Take a weighted average of capped forecasts, using forecast weights $w_{i,j}$ which sum to 1 for a given instrument:
+Take a weighted average of capped forecasts, using forecast weights $`w_{i,j}`$ which sum to 1 for a given instrument:
 
-$\text{Raw Combined Forecast}_{i,t} \; = \; \Large{\sum^{\text{\# filters}}_{j=1} (w_{i,j} \; \times \; f_{i,j,t})}$
+$`\text{Raw Combined Forecast}_{i,t} \; = \; \Large{\sum^{\text{\# filters}}_{j=1} (w_{i,j} \; \times \; f_{i,j,t})}`$
 
 <h3 style="font-weight: bold; text-align:center"> Factors to consider in choosing forecast weights</h3>
 
@@ -99,13 +100,13 @@ Bearing that in mind
 <h3 style="text-align: center">Removing expensive trading rules</h3>
 Recall from Strategy 3 the trading speed limit where instruments which use up more than 1/3 of their expected pre-cost return in costs are excluded. Carver uses a notional value of 0.10 SR units for instrument trading costs.
 
-$\text{Annual Risk Adjusted Costs} \; = \; \text{Transaction Costs} \; + \; \text{Holding Costs}$
+$`\text{Annual Risk Adjusted Costs} \; = \; \text{Transaction Costs} \; + \; \text{Holding Costs}`$
 
 This can be broken down further:
 
-$\text{Risk Adjusted Transaction Costs} \; = \; \text{Risk Adjusted Cost per Trade} \; \times \; \text{Annual Turnover}$
+$`\text{Risk Adjusted Transaction Costs} \; = \; \text{Risk Adjusted Cost per Trade} \; \times \; \text{Annual Turnover}`$
 
-$\text{Risk Adjusted Holding Costs} \; = \; \text{Risk Adjusted Cost per Trade} \; \times \; \text{Rolls per Year} \; \times \; 2$
+$`\text{Risk Adjusted Holding Costs} \; = \; \text{Risk Adjusted Cost per Trade} \; \times \; \text{Rolls per Year} \; \times \; 2`$
 
 We can have a higher max trading cost for trading rules since:
 
@@ -116,11 +117,11 @@ Because of these two effects, Carver uses a higher limit of 0.15 SR units for tr
 
 For a given instrument if the max annual risk adjusted costs is 15, the maximum allowable turnover can be derived for a given trading rule variation:
 
-$\text{Annual Risk Adjusted Costs} \; < \; 0.15$
+$`\text{Annual Risk Adjusted Costs} \; < \; 0.15`$
 
-$\text{(Cost per Trade} \; \times \; \text{Turnover}) \; + \; \text{(Cost per Trade} \; \times \; \text{Rolles per Year} \; \times \; 2) \; < \; 0.15$
+$`\text{(Cost per Trade} \; \times \; \text{Turnover}) \; + \; \text{(Cost per Trade} \; \times \; \text{Rolles per Year} \; \times \; 2) \; < \; 0.15`$
 
-$\text{Turnover} \; < \; \Large{\frac{0.15 \; - \; (\text{Cost per Trade} \; \times \; \text{Rolls per Year} \; \times \; 2)}{\text{Cost per Trade}}} $
+$`\text{Turnover} \; < \; \Large{\frac{0.15 \; - \; (\text{Cost per Trade} \; \times \; \text{Rolls per Year} \; \times \; 2)}{\text{Cost per Trade}}}`$
 
 
 <h3 style="text-align: center">Top down method for choosing forecast weights</h3>
@@ -146,13 +147,13 @@ Similar to the Instrument Diversification Multiplier, we need to use a Forecast 
 
 Since most trend filters are fairly correlated the FDM's won't ever be too high. After applying the FDM, the combined forecast can exceed +/- 20 so a cap is necessary.
 
-$\text{Raw Combined Forecast}_{i,t} \; = \; \Large{\sum^{\text{Trading Variations}}_{j = 1}\;(W_{i,j} \; \times \; F_{i,j,t})}$
+$`\text{Raw Combined Forecast}_{i,t} \; = \; \Large{\sum^{\text{Trading Variations}}_{j = 1}\;(W_{i,j} \; \times \; F_{i,j,t})}`$
 
-$\text{Scaled Combined Forecast}_{i,t} \; = \; \text{Raw Combined Forecast}_{i,t} \; \times \; FDM_j$
+$`\text{Scaled Combined Forecast}_{i,t} \; = \; \text{Raw Combined Forecast}_{i,t} \; \times \; FDM_j`$
 
-$\text{Capped Combined Forecast}_{i,t} \; = \; \text{max(min(Scaled Combined Forecast}_{i,t}, \; +20), \; -20)$
+$`\text{Capped Combined Forecast}_{i,t} \; = \; \text{max(min(Scaled Combined Forecast}_{i,t}, \; +20), \; -20)`$
 
-$N_{i,t} \; = \; \LARGE{\frac{\text{Capped Combined Forecast}_{i,t} \; \times \; \text{Capital} \; \times \; IDM \; \times \; \text{Weight}_i \; \times \; \tau}{10 \; \times \; \text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{\%i,t}}}$
+$`N_{i,t} \; = \; \LARGE{\frac{\text{Capped Combined Forecast}_{i,t} \; \times \; \text{Capital} \; \times \; IDM \; \times \; \text{Weight}_i \; \times \; \tau}{10 \; \times \; \text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{\%i,t}}}`$
 
 <h3 style="text-align: center; font-weight: bold">Performance Evaluation</h3>
 
@@ -176,7 +177,7 @@ While trend following has been profitable, we should focus on other strategies t
 
 <h1 style="text-align:center; font-weight: bold">Strategy 10: Basic Carry</h1>
 
-$\text{Excess Return} \; = \; \text{Spot Return} \; + \; \text{Carry}$
+$`\text{Excess Return} \; = \; \text{Spot Return} \; + \; \text{Carry}`$
 
 For example, the S&P 500 carry is equal to the dividends we'd earn less the interest required to fund a loan used for buying all the stocks in the S&P 500 index. 
 
@@ -195,45 +196,45 @@ Carry is a well-known risk premium that is quite different from the trend premiu
 
 These carry returns come from different sources, depending on the asset class of the instrument you trade. We can decompose these returns by thinking about an arbitrage trade that will replicate a long position in the future. For the equities, the arbitrage trade is to borrow funds to buy the shares that make up the index, giving us this excess return:
 
-$\text{Excess Return(Equities) = Spot Return + Dividends - Interest}$
+$`\text{Excess Return(Equities) = Spot Return + Dividends - Interest}`$
 
-$\text{Carry(Equities) = Dividends - Interest}$
+$`\text{Carry(Equities) = Dividends - Interest}`$
 
 Hence, carry for equities can be positive or negative depending on the relative size of dividend yields and interest rates.
 
 Consider bonds:
 
-$\text{Excess Return(Bonds) = Spot Return + Yield - Repo Rate}$
+$`\text{Excess Return(Bonds) = Spot Return + Yield - Repo Rate}`$
 
-$\text{Carry(Bonds) = Yield - Repo Rate}$
+$`\text{Carry(Bonds) = Yield - Repo Rate}`$
 
 Since the repo rate is often lower than the yield, carry in bonds is normally positive. An exception being when the central bank sets short-term interest rates at a high level which is expected to fall in the future, resulting in an inverted yield curve.
 
 Consider in foreign exchange (FX) markets where there are two different interest rates:
 
-$\text{Excess Return(FX) = Spot Return + Deposit Rate - Borrowing Rate}$
+$`\text{Excess Return(FX) = Spot Return + Deposit Rate - Borrowing Rate}`$
 
-$\text{Carry(FX) = Deposit Rate - Borrowing Rate}$
+$`\text{Carry(FX) = Deposit Rate - Borrowing Rate}`$
 
 Consider for example a long GBPUSD trade, which is equivalent to borrowing USD, converting them into pounds, and then depositing the pounds. The deposit rate would be the appropriate interest rate in the UK, and the borrowing rate would be the US interest rate. G10 FX markets typically have similar interest rates so their carry is negligible whereas emerging market currencies normally have significant positive carry against the dollar. 
 
 Short Term Interest Rates and Volatility cary is more complex and worth reading later but the formula is:
 
-$\text{Excess Return(STIR, Vol) = Spot Return + Current Spot Price - Futures Price}$
+$`\text{Excess Return(STIR, Vol) = Spot Return + Current Spot Price - Futures Price}`$
 
-$\text{Carry(STIR, Vol) = Current Spot Price - Futures Price}$
+$`\text{Carry(STIR, Vol) = Current Spot Price - Futures Price}`$
 
 Consider metals which have no carry and are almost certainly negative:
 
-$\text{Excess Return(Metals) = Spot Return - Borrowing Cost - Storage Costs}$
+$`\text{Excess Return(Metals) = Spot Return - Borrowing Cost - Storage Costs}`$
 
-$\text{Carry(FX) = -(Borrowing Cost + Storage Costs)}$
+$`\text{Carry(FX) = -(Borrowing Cost + Storage Costs)}`$
 
 Consider Energy and Agricultural Products:
 
-$\text{Excess Return(Energy, Agricultural) = Spot Return - Borrowing Cost - Storage Costs + Convenience Yield}$
+$`\text{Excess Return(Energy, Agricultural) = Spot Return - Borrowing Cost - Storage Costs + Convenience Yield}`$
 
-$\text{Carry(FX) = Convenience Yield - (Borrowing Cost + Storage Costs)}$
+$`\text{Carry(FX) = Convenience Yield - (Borrowing Cost + Storage Costs)}`$
 
 This convenience yield reflects the current market expectations about future supply and demand for the commodit which could be positive or negative. Commodities typically have a negative carry although positive carries possible for extended periods of time.
 
@@ -249,45 +250,45 @@ Our expected carry can be measured by comparing the current price of the future 
 
 However, this isn't a problem if we're holding futures that are further out on the curve. Theoretically the next previous expiration contract serves as the spot price of the further out contract. For example for the S&P 500 e-mini, expiring in December, March, June, and September, if December is the front month its price can be used to estimate the spot price for the March contract.
 
-$\text{Raw Carry = Price of nearer futures contract - Price of Currently Held Contract}$
+$`\text{Raw Carry = Price of nearer futures contract - Price of Currently Held Contract}`$
 
 An advantage of this approach is both contracts are trading on the same exchange so if daily closing prices are used, the values will be synchronized.
 
 This isn't much help for most financial futures, where we are typically limited to holding the front contract and there isn't a nearer contract we can use for comparison. We can get around this if we assume that the gradient of the futures curve is constant, then the expected carry on the contract we are holding will be equal to:
 
-$\text{Raw Carry = Price of Currently Held Contract - Price of Further Out Contract}$
+$`\text{Raw Carry = Price of Currently Held Contract - Price of Further Out Contract}`$
 
 There will always need to be another future further out because without it, rolling would be impossible; however, the further out contract might not appear until a few days before expiry. Worst case scenario we have an accurate reading for carry a few times a year when each roll happens which is normally sufficient.
 
 A couple of examples, its November 2021 and you're trading the S&P 500 December 2021 contract. Since this is the front contract, you don't have the option of calculating carry using a nearer delivery month and you're not collecting spot S&P 500 index prices. So you go to the further out March 2022 contract. The prices were 4578.50 and 4572.00 for December and March, respectively. Making the raw carry:
 
-$\text{Raw Carry = Price of Currently Held Contract - Price of Further Out Contract}$
+$`\text{Raw Carry = Price of Currently Held Contract - Price of Further Out Contract}`$
 
-$\text{Raw Carry = 4578.50 - 4572.00 = 6.50}$
+$`\text{Raw Carry = 4578.50 - 4572.00 = 6.50}`$
 
 Now consider WTI Crude Oil future. Carver only trades the December delivery. Imagine you had already begun holding the December 2022 contract which is priced at 62.09. Obviously this isn't the front month — so you can use a nearer month in your calculation. Crude has monthly deliveries so the previous contract is November 2022, trading at 62.61:
 
-$\text{Raw Carry = Price of nearer futures contract - Price of Currently Held Contract}$
+$`\text{Raw Carry = Price of nearer futures contract - Price of Currently Held Contract}`$
 
-$\text{Raw Carry = 62.61 - 62.09 = 0.52}$
+$`\text{Raw Carry = 62.61 - 62.09 = 0.52}`$
 
 <h3 style="text-align:center; font-style:italic">Annualization</h3>
 
 This value of carry reflects what we can expect to earn between expiries. Some contracts trade quarterly, others monthly; and even some that roll usually two but sometimes three months apart. We must annualize to get a consistent estimate of carry.
 
-$\text{Expiry Difference in Years} \; = \; \Large{\frac{|\text{Months between Contracts}|}{12}}$
+$`\text{Expiry Difference in Years} \; = \; \Large{\frac{|\text{Months between Contracts}|}{12}}`$
 
-$\text{Annualized Raw Carry} \; = \; \Large{\frac{\text{Raw Carry}}{\text{Expiry Difference in Years}}}$
+$`\text{Annualized Raw Carry} \; = \; \Large{\frac{\text{Raw Carry}}{\text{Expiry Difference in Years}}}`$
 
 <h3 style="text-align:center; font-style:italic">Risk Adjustment</h3>
 
 Although the S&P 500 is expected to earn 26.0 price units of carry to the 6.24 for Crude Oil, so what? Since our annualized carry is in units of price, it makes sense to divide it by the annualized standard deviation of returns for the relevant instrument also in price units.
 
-$\text{Carry} \; = \; \Large{\frac{\text{Annualized Raw Carry}}{\sigma_p \; \times \; 16}}$
+$`\text{Carry} \; = \; \Large{\frac{\text{Annualized Raw Carry}}{\sigma_p \; \times \; 16}}`$
 
 We may also use annualized standard deviation of returns in percentage terms with:
 
-$\text{Carry} \; = \; \Large{\frac{\text{Annualized Raw Carry}}{\sigma_\% \; \times \; \text{Current Contract Price}}}$
+$`\text{Carry} \; = \; \Large{\frac{\text{Annualized Raw Carry}}{\sigma_\% \; \times \; \text{Current Contract Price}}}`$
 
 After risk adjusting, the carry for Crude Oil, 0.358, is 10 times higher than the S&P 500, 0.035.
 
@@ -297,7 +298,7 @@ This is where forecasting comes in. In strategy 7, Carver formally defined a for
 
 Since carry is defined as an expected annual return divided by an annualized standard deviation both in the same price units, __expected carry is equal to expected SR__. Hence, the carry calculation above naturally produces a forecast:
 
-$\text{Carry Forecast} \; = \; \Large{\frac{\text{Annualized Raw Carry}}{\sigma_p \; \times \; 16}}$
+$`\text{Carry Forecast} \; = \; \Large{\frac{\text{Annualized Raw Carry}}{\sigma_p \; \times \; 16}}`$
 
 Carver uses this in reference to a trading strategy that can deal with less than perfect data:
 
@@ -327,7 +328,7 @@ We then have _specific_ problems with seasonal instruments where carry varies pe
 
 First, let's consider the problem of noise. Noise will lead to unnecessary trading, thus increasing trading costs without realizing additional profits. We can either buffer or smooth the forecast in some way. Smoothing isn't appropriate for trend filters since they are constructed from moving averages but they can be used for carry:
 
-$\text{Smoothed Carry Forecast(Span) = EWMA}_{span}\text{(Carry Forecast)}$
+$`\text{Smoothed Carry Forecast(Span) = EWMA}_{span}\text{(Carry Forecast)}`$
 
 Different spans may be appropriate for different instruments. Natural Gas and other instruments with correctly estimated seasonality would require quite a short span to adjust quickly to changes after each roll whereas a longer span would make sense for most other instruments.
 
@@ -338,11 +339,11 @@ Carver uses four different spans as his carry trading rule variations:
 - 60 business days ~3 months
 - 120 business days ~6 months
 
-$\text{Scaled Carry Forecast(Span)} \; = \; \text{Smoothed Carry Forecast(Span)} \; \times \; \text{Forecast Scalar}$
+$`\text{Scaled Carry Forecast(Span)} \; = \; \text{Smoothed Carry Forecast(Span)} \; \times \; \text{Forecast Scalar}`$
 
 Carver finds a forecast scalar of 30 is appropriate. Would need to measure the average absolute value across all of our different futures instruments with all available data history which in Carver's case came in around 0.33 so x30 would get an average value of 10.
 
-$\text{Capped Carry Forecast(Span)} \; = \; \text{max(min(Scaled Forecast(Span)}, \; +20 \;), \; -20)$
+$`\text{Capped Carry Forecast(Span)} \; = \; \text{max(min(Scaled Forecast(Span)}, \; +20 \;), \; -20)`$
 
 If we were only trading one speed of carry, then we'd calculate these forecasts every day, using closing prices. We'd then recalculate the optimal position using the standard position scaling equations. However it's better to trade multiple carry trading rule variations to get some diversification benefit.
 
@@ -380,9 +381,15 @@ FDM suggested forecast weights (provided by Carver):
 
 Median Absolute Carry (MAC) = Average Scaled Forecast divided by the Forecast Scalar (30) and taking the median absolute value. MAC will be larger for asset classes with instruments that have stronger carry forecasts on average. When MAC is higher, annualized standard deviation will also be higher.
 
+$`\text{Median Absolute Carry, MAC} = \text{Median}(\Large{\frac{\text{Average Scaled Forecast}}{\text{Forecast Scalar}}})`$
+
 The difference in standard deviation also implies that SRs may not be the most sensible metric to evaluate performance across asset classes. An alternative measure is adjusted mean return (AMR) which is also a Sharpe ratio but it's the annual return divided by the risk target of 20%, not the realized standard deviation we use for a standard SR calculation. Unlike the actual SR it will be smaller when forecasts are lower, and vice versa.
 
-You can directly compare AMR to MAC since both are Sharpe Ratios (this is because the forecasts produced by this strategy are equal to their expected SRs, other strategies only produce forecasts proportional to their expected SRs). MAC is the Sharpe Ratio promised by carry and the AMR is the Sharpe Ratio delivered by carry. $\% Carry Realized = AMR / MAC$. %Carry Realized > 100% means more carry delivered than promised, and vice versa.
+You can directly compare AMR to MAC since both are Sharpe Ratios (this is because the forecasts produced by this strategy are equal to their expected SRs, other strategies only produce forecasts proportional to their expected SRs). MAC is the Sharpe Ratio promised by carry and the AMR is the Sharpe Ratio delivered by carry. 
+
+$`\% \text{Carry Realized} = AMR / MAC`$. 
+
+%Carry Realized > 100% means more carry delivered than promised, and vice versa.
 
 Carry under promises and over delivers in all but two asset classes: agricultural and energy markets which are also where there are many seasonal instruments.
 
@@ -449,4 +456,3 @@ Forecast Weights for a given set of EWMAC and Carry trading rule variations
 Now that we have a combined forecast with the correct scale, it's just a matter of applying the usual procedure for capping, position sizing calculation and buffering.
 
 Carver notes, it is a little weird that the SR for an individual instrument is lower for trend than for a long only benchmark, yet the aggregate SR is much higher. Another way of looking at this is to consider the ratio between these two SRs, individual and aggregate, a Sharpe Ratio ratio (SRR). The SRR reflects the realized diversification benefits in risk adjusted returns from diversifying across multiple instruments. The combined strategy has a median SR a fraction below carry but an aggregate SR that is better than trend. If you were trading a single instrument, you face a stark choice between a better SR (carry) or a nicer skew (trend).
-
