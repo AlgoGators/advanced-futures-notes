@@ -202,23 +202,133 @@ Carver's preferred alternative is to compare returns to Normal Distribution.
 
 The percentile ratios are as follows:
 
-- $`\text{Lower Percentile Ratio (of \% returns)} \; = \; \Large{\frac{\text{1st Percentile}}{\text{30th Percentile}}}`$
+$`\text{Lower Percentile Ratio (of \% returns)} \; = \; \Large{\frac{\text{1st Percentile}}{\text{30th Percentile}}}`$
 
-- $`\text{Upper Percentile Ratio (of \% returns)} \; = \; \Large{\frac{\text{99th Percentile}}{\text{70th Percentile}}}`$
+$`\text{Upper Percentile Ratio (of \% returns)} \; = \; \Large{\frac{\text{99th Percentile}}{\text{70th Percentile}}}`$
 
 For a Normal Distribution the ratio (our reference ratio) comes from the Inverse CDF function for each percentile: 
 
-- $`\text{Reference Ratio} \; = \; \Large{\frac{\text{Inverse CDF(0.99)}}{\text{Inverse CDF(0.70)}}} \; \normalsize{=} \; \Large{\frac{\text{Inverse CDF(0.01)}}{\text{Inverse CDF(0.30)}}} \;\normalsize{\approx \; \Large{4.4395}}`$
+$`\text{Reference Ratio} \; = \; \Large{\frac{\text{Inverse CDF(0.99)}}{\text{Inverse CDF(0.70)}}} \; \normalsize{=} \; \Large{\frac{\text{Inverse CDF(0.01)}}{\text{Inverse CDF(0.30)}}} \;\normalsize{\approx \; \Large{4.4395}}`$
 
 Compare the reference ratio to each percentile ratio:
 
-- $`\text{Relative Lower Fat Tail Ratio, Lower Tail} \; = \; \Large{\frac{\text{Lower Percentile Ratio}}{\text{Reference Ratio}}}`$
+$`\text{Relative Lower Fat Tail Ratio, Lower Tail} \; = \; \Large{\frac{\text{Lower Percentile Ratio}}{\text{Reference Ratio}}}`$
 
-- $`\text{Relative Upper Fat Tail Ratio, Upper Tail} \; = \; \Large{\frac{\text{Upper Percentile Ratio}}{\text{Reference Ratio}}}`$
+$`\text{Relative Upper Fat Tail Ratio, Upper Tail} \; = \; \Large{\frac{\text{Upper Percentile Ratio}}{\text{Reference Ratio}}}`$
 
 <hr>
 
 <h1 style="text-align:center; font-weight: bold">Strategy 2: Buy and Hold with Risk Scaling</h1>
+
+Given a quantity of capital, decide how many contracts to buy.
+
+<h2 style="font-weight: bold">Strategy 2:</h2>
+<h3>Buy and hold, with positions scaled for risk.</h3>
+
+<h3 style="text-align:center; font-weight: bold">Measuring Risk of a Single Contract</h3>
+
+$`\text{Riskiness} \; = \; \text{Annualized Standard Deviation of Returns}`$
+
+Translate risk into dollar values:
+
+$`\text{Current Annualized Standard Deviation(\$)} \; = \; \text{Notional Value} \times \text{Standard Deviation(\% returns)}`$
+
+If: $`SR \; = \; \Large{\frac{\text{Annualized Mean Returns}}{\text{Standard Deviation}}}`$
+
+Then: 
+$`\text{Annualized Mean Returns} \; = \; SR \times \text{Standard Deviation}`$
+
+Presuming Normal Distribution of returns, 68% of the time our range of returns will be [Mean - $`\sigma`$, Mean + $`\sigma`$]
+
+<h3 style="text-align:center; font-weight: bold">Basic Position Scaling</h3>
+
+Suppose we have \$22,500 in capital and are comfortable with 16\% risk per year, measured in annualized standard deviation terms — target risk $`\tau`$. How many S&P 500 would we want to own? In this example, we're looking at S&P 500 e-micro's at a price of 4500 which has a notional exposure of \$22,500 with a annualized standard deviation of 16\% (how convenient!). So we'd look for \$3600 worth of risk which a single contract of the S&P 500 e-micro would provide ($`\$22,500 \times 16\%`$).
+
+Risk of a single contract, measured as an annualized standard deviation:
+
+$`\sigma(\text{Contract, Base Currency}) \; = \; \text{Notional Exposure(Base Currency)} \times \sigma_\%`$
+
+Risk for an entire position given N contracts:
+
+$`\sigma(\text{Position, Base Currency}) \; = \; \sigma(\text{Contract, Base Currency}) \times N`$
+
+Predetermined target risk — $`\tau`$ (annualized \% standard deviation)
+
+$`\sigma\text{(Target, Base Currency)} \; = \; \text{Capital(Base Currency)} \times \tau`$
+
+We now set our required position risk to be equal to the risk target in currency terms:
+
+$`\sigma\text{(Target, Base)} \; = \; \sigma\text{(Position, Base)}`$
+
+After rearranging our required number of contracts _N_ is:
+
+$`N \; = \; \Large{\frac{\text{Capital} \; \times \; \tau}{\text{Multiplier} \; \times \; \text{Price} \; \times \; FX \; \times \; \sigma_\%}}`$
+
+Alternatively, using daily risk in price points, $`\sigma_p \; = \; \Large{\frac{\text{Current Price} \; \times \; \sigma_\%}{16}}`$
+
+We can also calculate $`\sigma_p`$ by taking the standard deviation of a series of differences in daily back adjusted prices.
+
+The advantage of using price points is that it works even if the futures price is negative, giving us this formula:
+
+$`N \; = \; \Large{\frac{\text{Capital} \; \times \; \tau}{\text{Multiplier} \; \times \; FX \; \times \; \sigma_\% \; \times \; 16}}`$
+
+<h3 style="text-align:center">Some useful ratios:</h3>
+
+$`\text{Contract Leverage} \; = \; \Large{\frac{\text{Notional Exposure per Contract}}{\text{Capital}}}`$
+
+$`\text{Volatility Ratio} \; = \; \Large{\frac{\tau}{\sigma_\%}}`$
+
+$`N \; = \; \Large{\frac{\text{Volatility Ratio}}{\text{Contract Leverage}}}`$
+
+$`\text{Leverage Ratio} \; = \; \Large{\frac{\text{Total Notional Exposure}}{\text{Capital}}}`$
+
+$`\text{Leverage Ratio} \; = \; \Large{\frac{N \; \times \; \text{Notional Exposure per Contract}}{\text{Capital}}}`$
+
+$`\text{Leverage Ratio} \; = \; N \times \text{Contract Leverage Ratio}`$
+
+$`\text{Leverage Ratio} \; = \; \text{Volatility Ratio}`$
+
+It follows that the required amount of leverage is equal to volatility ratio: target volatility divided by price volatility of the instrument.
+
+<h3 style="text-align:center; font-weight: bold">Setting Target Risk</h3>
+
+Factors:
+- Risk possible given margin levels (from exchange or broker)
+- Risk possible given prudent leverage (ability to cope with losses)
+- Personal risk appetite
+- Optimal risk given expected performance (from return profile of strategy)
+
+<h3 style="text-align:center">Prudent Leverage</h3>
+
+Recall leverage ratio formula:
+
+$`\text{Volatility Ratio} \; = \; \Large{\frac{\tau}{\sigma_\%}}`$
+
+Say you are willing to accept daily loss of 30\% & lose 50\% of the position with the annualized standard deviation of 16\%, then:
+
+$`\text{Max} \; \tau \; = \; \sigma_\% \; \times \; \text{Maximum Leverage Ratio}`$
+
+$`\text{Max} \; \tau \; = \; \sigma_\% \; \times \; \Large{\frac{\text{Maximum Capital Loss}}{\text{Worst Return}}}`$
+
+$`\text{Max} \; \tau \; = \; 0.16 \; \times \Large{\frac{0.50}{0.30}} \normalsize \; = \; 26.5\%`$
+
+<h3 style="text-align:center">Optimal Risk Given Performance</h3>
+
+$`\text{Half Kelly Optimal Risk} \; \approx \; \Large{\frac{SR}{2}} \normalsize \times 100`$
+
+<hr>
+
+<h3 style="text-align:center; font-weight: bold">A note on compounding...</h3>
+
+Don't compound returns during backtests as this give a better picture of what the strategy would do in the average year agnostic of the previous year's results. Ensure that you always use current account value of your trading account as notional capital when running the strategy live. This results in positions being scaled backed when losses are incurred. 
+
+<hr>
+
+<h3 style="text-align:center; font-weight: bold">Minimum Capital</h3>
+
+$`\text{Minimum Capital for 1 Contract} \; = \; \Large \frac{\text{Capital} \; \times \; \tau}{\text{Multiplier} \; \times \; \text{Price} \; \times \; FX \; \times \; \sigma_\%}`$
+
+Set minimum capital so that you can own at least 4 contracts which allows you to properly scale position without having to close it.
 
 <hr>
 
