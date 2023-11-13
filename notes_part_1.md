@@ -225,6 +225,8 @@ Given a quantity of capital, decide how many contracts to buy.
 <h2 style="font-weight: bold">Strategy 2:</h2>
 <h3>Buy and hold, with positions scaled for risk.</h3>
 
+<hr>
+
 <h3 style="text-align:center; font-weight: bold">Measuring Risk of a Single Contract</h3>
 
 $`\text{Riskiness} \; = \; \text{Annualized Standard Deviation of Returns}`$
@@ -548,6 +550,8 @@ Alternative method to managing positions is a static method where you don't adju
 <h2 style="font-weight: bold">Strategy 6:</h2>
 <h3>Trade 1+ instruments, each with positions scaled for variable risk estimate. Hold a long position when they have been in a long uptrend, and a short position in a downtrend.</h3>
 
+<hr>
+
 <h3 style="text-align:center; font-weight: bold">Adjusting the trend filter to go both long and short</h3>
 
 $`
@@ -568,6 +572,75 @@ Worse average return, worse average drawdown, worse average SR; however, these s
 
 To compare & negate secular trends we can compare using linaer regression:\
 $`y_t \; = \; \alpha + \beta x_t + \epsilon_t`$ where $`y_t`$ is the monthly average returns, $`\alpha`$ is the difference between strategies, $`\beta`$ is how much the two strategies comove, $`x_t`$ is the base strategy like strategy 4, $`\epsilon`$ is the estimate of error.
+
+<hr>
+
+<h1 style="text-align:center; font-weight: bold">Strategy 7: Slow trend following with trend strength</h1>
+
+<h2 style="font-weight: bold">Strategy 7:</h2>
+<h3>Strategy 6 scaled according to strength of the trend</h3>
+
+<hr>
+
+Looking at crossover over time, volatility and market value has changed so this crossover needs to be risk-adjusted
+
+Forecast — value that is proportional to an expected risk adjusted return (SR)
+
+$`\text{Raw Forecast} \; = \; \Large \frac{\text{Fast EWMA} \; - \; \text{Slow EWMA}}{\sigma_p}`$\
+where $`\sigma_p \; = \; \Large \frac{\text{Price} \; \times \; \sigma_\%}{16}`$
+
+We scale the forecast to average absolute value of 10:
+
+$`\text{Scaled Forecast} \; = \; \Large \frac{\text{Raw Forecast} \; \times \; 10}{\text{Average Absolute Value of Raw Forecast}}`$
+
+$`\text{Forecast Scalar} \; = \; \Large \frac{10}{\text{Average Absolute Value of Raw Forecast}}`$
+
+$`\text{Scaled Forecast} \; = \; \Large \frac{\text{EWMA(64)} - \text{EWMA(16)}}{\sigma_p} \normalsize \times \text{Forecast Scalar} `$
+
+$`N_{i,t} \; = \; \Large \frac{\text{Scaled Forecast}_{i,t} \; \times \; \text{Capital} \; \times \; IDM \; \times \; \text{Weight}_i \; \times \; \tau}{10 \; \times \; \text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{\%i,t} \;} \times \normalsize(EWMAC > 0)`$
+
+Good idea to set max forecast value (Carver uses 20).
+
+$`\text{Capped Forecast}_{i,t} \; = \; \text{max(min(Scaled Forecast}_{i,t}, \; -20), \; +20)`$
+
+<hr>
+
+<h1 style="text-align:center; font-weight: bold">Strategy 8: Fast trend following, long & short with trend strength</h1>
+
+<h2 style="font-weight: bold">Strategy 8:</h2>
+<h3>Strategy 7 with shorter trend duration</h3>
+
+<hr>
+
+<h3 style="text-align:center; font-weight: bold">Constructing a faster trend filter</h3>
+
+Should use windows of 1:4 ratios:\
+e.g 16:64, 32:128, 64:256
+
+Same equation as Strategy 7 to calculate N number of positions for a particular trend filter.
+
+<h3 style="text-align:center; font-weight: bold">Buffering to reduce trading costs</h3>
+
+Buffer _B_ set as a fraction _F_ of the average long position:
+
+$`B_{i,t} \; = \; \Large \frac{F \; \times \; \text{Capital} \; \times \; IDM \; \times \; \text{Weight}_{i} \; \times \; \tau}{\text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{\%i,t}}`$
+
+Per Carver: _F_ can easily be 0.10. 
+
+Create upper & lower buffers and trade if current position is outside of these buffers:
+
+$`\text{Lower Bound}, \; B^L_{i,t} \; = round(N_{i,t} \; - \; B_{i,t})`$
+
+$`\text{Upper Bound}, \; B^U_{i,t} \; = round(N_{i,t} \; + \; B_{i,t})`$
+
+$`\text{Current Position}, \; C_{i,t}`$
+
+$`Decision = \begin{cases}
+ & B^U_{i,t} \; \leq \; C_{i,t} \; \leq \; B^L_{i,t} \; : \; \text{No Trading Required} \\ 
+ & C_{i,t} \; < \; B^L_{i,t} \; : \; \text{Buy} \; (B^L_{i,t} \; - \; C_{i,t}) \;  \text {Contracts} \\ 
+ & C_{i,t} \; > \; B^U_{i,t} \; : \; \text{Sell} \; (C_{i,t} \; - \; B^U_{i,t}) \;  \text {Contracts} 
+\end{cases}`$
+
 
 <hr>
 
