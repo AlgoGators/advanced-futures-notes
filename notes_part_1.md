@@ -509,6 +509,39 @@ $\begin{equation}
 
 <hr>
 
+<h1 style="text-align:center; font-weight: bold">Strategy 5: Slow Trend Following</h1>
+
+<h2 style="font-weight: bold">Strategy 5:</h2>
+<h3>Buy & hold 1+ instruments when they're in long up trend, scaled for variable risk estimates.</h3>
+
+<hr>
+
+<h3 style="text-align:center; font-weight: bold">Testing for Market Uptrend</h3>
+
+Can use SMA(256), if $`SMA < P_t \rightarrow \text{uptrend}`$. SMA(256) can be a bit rocky since it's slow to react. Add a shorter term SMA to smooth this out. $`SMA(64) > SMA(256) \rightarrow \text{uptrend}`$.
+
+This Moving Average Crossover(MAC) is a decent way of identifying long-term trends but fails to recognize faster trends with several short-lived reversals. 
+
+Alternative is to use EWMA(_α_). Can create an $`EWMAC \; = \; EWMA(N=64) - EWMA(N=256)`$. 
+
+Use this trend filter as an on/off switch for strategy 4's equation:
+
+$`N_{i,t} \; = \; \Large \frac{\text{Capital} \; \times \; IDM \; \times \; \text{Weight}_i \; \times \; \tau}{\text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{\%i,t} \;} \times \normalsize(EWMAC > 0)`$
+
+<h3 style="text-align:center; font-weight: bold">Trend Filter on S&P 500 Micro Futures</h3>
+
+<ol>
+  <li>slightly lower risk</li>
+  <li>better average drawdown</li>
+  <li>lower returns</li>
+  <li>higher turnover</li>
+  <li>≈ annual costs</li>
+</ol>
+
+Alternative method to managing positions is a static method where you don't adjust your position once established in an uptrend
+
+<hr>
+
 <h1 style="text-align:center; font-weight: bold">Strategy 9: Multiple Trend Following Rules</h1>
 
 We want to trade as many instruments as possible as they give us access to many different kinds of risk premia. This is seen in many instruments when their returns are relatively uncorrelated. We don't have to just diversify across instruments but we can diversify across strategies.
