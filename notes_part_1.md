@@ -332,6 +332,183 @@ Set minimum capital so that you can own at least 4 contracts which allows you to
 
 <hr>
 
+<h1 style="text-align:center; font-weight: bold">Strategy 3: Buy & Hold with Variable Risk Scaling</h1>
+
+One estimate is simply the most recent risk estimate seen over the last month or so
+
+<h2 style="font-weight: bold">Strategy 3:</h2>
+<h3>Buy and Hold, with Positions Scaled for Variable Risk</h3>
+
+<hr>
+
+<h3 style="text-align:center; font-weight: bold">Forecasting Future Volatility</h3>
+
+Volatility tends to cluster. Using an estimate of standard deviation derived from the last month or so of returns does a good job of forecasting what standard deviation will be in the near term.
+
+To calculate a standard deviation on recent returns we need a moving average of returns. For N returns:
+
+$`r^*_t \; = \; \Large \frac{r_t}{N} \; + \; \frac{r_{t-1}}{N} \; + \; ... \; + \; \frac{r_{t-N+1}}{N}`$
+
+$`\sigma(N)_t \; = \; \Large \sqrt{\frac{(r_t \; - \; r^*_t)^2}{N} \; + \; \frac{(r_{t-1} \; - \; r^*_t)^2}{N} \; + \; ... + \; \frac{(r_{t-N+1} \; - \; r^*_t)^2}{N}}`$\
+If we're calculating $`\sigma_\%`$, annualized \% risk we'd used \% returns for $`r_t`$ & multiply by 16.
+
+This method can be too noisy so it's better to use exponentially weighted moving average (EWMA):
+
+$`\text{EWMA Standard Deviation}, \; \sigma(\alpha)_{t} \; = \; \sqrt{\alpha(r_t-r^*_t)^2 \; + \; \alpha(1 - \alpha)(r_{t-1} - r^*_t)^2 \; + \; \alpha(1-\alpha)^2(r_{t-2} - r^*_t)^2 \; + \; ...}`$
+
+Half-life:\
+Simple Moving Average(SMA) is 1/2 the window. For EWMA: $`\alpha \; = \; \Large{\frac{2}{N+1}}`$. $`\alpha`$ is the emphasis placed on recent data (i.e. 1 means full weight on most recent data point, 0 means no emphasis placed on most recent data point). Carver recommends a value of 0.06.
+
+Unfortunately, although standard deviation tends to cluster in the short term, it also mean reverts in the long term. As a result we want to blend our short and long term standard deviation:
+
+$`\sigma_{blend,t} \; = \; 0.3(\text{Ten year average of} \; \sigma_t) + 0.7\sigma_t`$
+
+<h3 style="text-align:center; font-weight: bold">Risk Adjusted Costs</h3>
+
+$`\Large \frac{\text{The Reduction in Expected Return Due to Costs}}{\text{Estimate of Risk}}`$
+
+$`\text{Costs in SR Terms} \; = \; \Large \frac{\text{Annual Costs}}{\text{Annualized Standard Deviation}}`$
+
+$`\text{Spread Cost, Price Points} \; = \; \Large \frac{\text{Bid} \; - \; \text{Offer}}{2}`$
+
+$`\text{Spread Cost, Currency} \; = \; \text{Multiplier} \; \times \; \text{Spread Cost Price Points}`$
+
+$`\text{Spread Cost, Currency} \; = \; \Large \frac{\text{Tick Value} \; \times \; \text{Spread in ticks}}{2}`$
+
+$`\text{Total Cost per Trade, Currency} \; = \; \text{Spread Cost, Currency} \; + \; \text{Commission per Contract}`$
+
+$`\text{Total Cost per Trade, \%} \; = \; \Large \frac{\text{Total Cost per Trade, Currency}}{\text{Price} \; \times \; \text{Multiplier}}`$
+
+To get this Total Cost per Trade in risk-adjusted terms (SR) we divide by the % standard deviation
+
+$`\text{Risk Adjusted Cost per Trade} \; = \; \Large \frac{\text{Total Cost per Trade, \%}}{\text{Price} \; \times \; \text{Multiplier}}`$
+
+$`\text{Risk Adjusted Holding Cost} \; = \; \text{Risk Adjusted Cost per Trade} \; \times \; \text{Rolls per Year} \; \times \; 2`$
+
+$`\text{Risk Adjusted Transaction Cost} \; = \; \text{Risk Adjusted Cost per Trade} \; \times \; \text{Turnover}`$
+
+$`\text{Annual Risk Adjusted Cost} \; = \; \text{Risk Adjusted Holding Cost} \; + \; \text{Risk Adjusted Transaction Cost}`$
+
+Turnover — the number of times we turnover our average position
+
+__Risk adjusted cost allows us to compare instruments__
+
+<h3 style="text-align:center; font-weight: bold">Which Instruments to Trade</h3>
+
+<h3 style="text-align:center">Minimum capital, performance and costs</h3>
+
+$`\text{Minimum Capital for 4 Contracts} \; = \; \Large \frac{4 \; \times \; \text{Multiplier} \; \times \; \text{Price} \; \times \; FX \; \times \; \sigma_\%}{\tau}`$
+
+Best instrument maximizes SR, and minimizes costs. Don't want to spend more than 1/3 of pre-cost SR on costs.
+
+$`\Large \frac{1}{3} \normalsize \; \text{Pre-Cost SR} \; > \; \text{Rolls per Year} \; \times \; 2 \; + \; \text{Turnover} \; \times \; \text{Risk Adjusted Cost per Trade}`$
+
+<h3 style="text-align:center">Liquidity</h3>
+
+Avoid small markets in general. 
+
+$`\text{Average Daily Volume in USD Risk} \; = \; FX \; \times \; \text{Average Daily Volume} \; \times \; \sigma_\% \; \times \; \text{Price} \; \times \; \text{Multiplier}`$
+
+<hr>
+
+<h1 style="text-align:center; font-weight: bold">Strategy 4: Buy & Hold Portfolio with Variable Risk Position Sizing</h1>
+
+Use Strategy 3 for different instruments, based on how Strategy 3, our capital allocation equals risk allocation. 
+
+<h2 style="font-weight: bold">Strategy 4:</h2>
+<h3>Buy and hold a portfolio of instruments, each with positions scaled for a variable risk estimate.</h3>
+
+<hr>
+
+Strategy Variations: Risk Parity and All-Weather
+
+<h3 style="text-align:center; font-weight: bold">Strategy Variation: Risk Parity</h3>
+
+$`\text{Position Size,} \; N_t \; = \; \Large \frac{\text{Capital} \; \times \; \tau}{\text{Multiplier} \; \times \; \text{Price}_t \; \times \; FX_t \; \times \; \sigma_{\%t}}`$
+
+The optimal number of contracts for instrument _i_ given proportion of capital (weight) allocated to it is:
+
+$`N_{i,t} \; = \; \Large \frac{\text{Capital} \; \times \; \text{Weight}_i \; \times \; \tau}{\text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{\%i,t} \;}`$
+
+Carver typically weights instruments equally, in the strategy he splits 50\% into S&P 500 and 50\% into bonds.
+
+<h3 style="text-align:center">Correcting for Diversification</h3>
+
+Diversification:
+
+- Enjoy reduced risk for a similar return
+- Can apply more leverage to meet risk target
+
+Instrument Diversification Multiplier (IDM) which allows us to hit our expected risk target (greater than 1). It can be approximated by:
+
+$`\approx \Large \frac{\text{Target Risk}}{\text{Realized Aggregate Risk}}`$
+
+So...
+
+$`N_{i,t} \; = \; \Large \frac{\text{Capital} \; \times \; IDM \; \times \; \text{Weight}_i \; \times \; \tau}{\text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{\%i,t} \;}`$
+
+The leverage required by this strategy make futures a necessity. Most other assets would be impossible to get the desired leverage. 
+
+<h3 style="text-align:center; font-weight: bold">Strategy Variation: All Weather</h3>
+
+Risk Parity had stellar performance for 2 Reasons:
+- Bonds & equities benefitted from related repricing effects, lower interest rates, and higher PEs
+- Low Correlation between US bonds & equities
+
+Bonds & Equities have high correlation in an inflationary environment.
+
+Carver's recommended all-weather allocation:
+- 25\% US Stocks: S&P 500 micro
+- 25\% Bonds
+  - 12.5\% Long Term: US 10-year bond futures
+  - 12.5\% Intermediate: US 5-year bond futures
+- 25\% Commodities
+  - 12.5\% WTI Crude Oil mini futures
+  - 12.5\% Corn futures
+- 25\% Gold: Gold micro futures
+
+Gold & Commodities benefit from inflationary environments
+
+<h3 style="text-align:center; font-weight: bold">Strategy Variation: Generalized Risk Premia Portfolio</h3>
+
+$`\text{Minimum Capital (4 contracts)} \; = \; \Large \frac{4 \; \times \; \text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{\%i,t} \;}{\times \; IDM \; \times \; \text{Weight}_i \; \times \; \tau}`$
+
+<h3 style="text-align:center">How to set instrument weights</h3>
+
+We want a correlation matrix - set of estimates for all pairwise correlations between sub-strategy returns, trading each instrument. Since each strategy should have approximate risk, we don't need a covariance matrix which incorporates standard deviation (risk).
+
+<h3 style="text-align:center">An algorithm for automatically selecting instruments</h3>
+
+1. Decide on set of possible instruments
+    - meet cost, liquidity, & legal requirements
+2. Choose the first investment
+    - Using general IDMs, go through each instrument & calculate minimum capital for each instrument, discarding any that exceed capital availabe
+    - Choose the 1 with the lowest risk adjusted cost
+3. Measure the expected SR of the portfolio
+    - Assuming all instruments have same pre-cost SR,\
+    $`\text{Instrument Annual SR}_i \; = \; SR^* - (T \times c_i)`$\
+    $`\text{Instrument Annual Mean}_i \; = \; \tau \times (SR^* - (T \times c_i))`$\
+    $`\text{Instrument Annual Mean in Portfolio}_i \; = \; \text{Weight}_i \times IDM \times \tau \times (SR^* - (T \times c_i))`$\
+    $`\text{Portfolio Mean(for N instruments)} \; = \; \sum_{i=1}^{N}(\text{Weight}_i \times IDM \times \tau \times (SR^* - (T \times c_i)))`$\
+    $`\text{Portfolio} \; \sigma \; = \; IDM \times \tau \times \sqrt{w \; \Sigma \; w'}`$ where _w_ is the vector of instrument weights, _w'_ is vector _w_ transposed, $`\Sigma`$ is the correlation matrix of sub-strategy returns, and perform matrix multiplication inside.\
+    $`\text{Portfolio SR (for N instruments)} \; = \; \Large \frac{\sum^{N}_{i=1}(\text{Weight}_i \times (SR^* - (T \times c_i)))}{\sqrt{w \; \Sigma \; w'}}`$
+4. Iterate over all instruments not in portfolio
+5. Choose instrument with high-expected SR for its trial portfolio
+6. Check to see if expected SR for current portfolio has decreased by +10\%, if so, don't include instrument
+
+<h4>Carver's recommended risk targets:</h4>
+
+$\begin{equation}
+\begin{align*}
+\text{1 instrument} &: 10\% \\
+\text{2-6 instruments} &: [10\%, 20\%] \\
+\text{1+ instrument from each of the 7 asset classes} &: 20\% \\
+\text{2+ instruments from each class} &: 25\%
+\end{align*}
+\end{equation}$
+
+<hr>
+
 <h1 style="text-align:center; font-weight: bold">Strategy 9: Multiple Trend Following Rules</h1>
 
 We want to trade as many instruments as possible as they give us access to many different kinds of risk premia. This is seen in many instruments when their returns are relatively uncorrelated. We don't have to just diversify across instruments but we can diversify across strategies.
