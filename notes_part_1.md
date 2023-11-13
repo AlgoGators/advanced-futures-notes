@@ -499,6 +499,7 @@ We want a correlation matrix - set of estimates for all pairwise correlations be
 <h4>Carver's recommended risk targets:</h4>
 
 $\begin{equation}
+\nonumber
 \begin{align*}
 \text{1 instrument} &: 10\% \\
 \text{2-6 instruments} &: [10\%, 20\%] \\
@@ -538,7 +539,35 @@ $`N_{i,t} \; = \; \Large \frac{\text{Capital} \; \times \; IDM \; \times \; \tex
   <li>≈ annual costs</li>
 </ol>
 
-Alternative method to managing positions is a static method where you don't adjust your position once established in an uptrend
+Alternative method to managing positions is a static method where you don't adjust your position once established in an uptrend.
+
+<hr>
+
+<h1 style="text-align:center; font-weight: bold">Strategy 6: Slow Trend Following, Long & Short</h1>
+
+<h2 style="font-weight: bold">Strategy 6:</h2>
+<h3>Trade 1+ instruments, each with positions scaled for variable risk estimate. Hold a long position when they have been in a long uptrend, and a short position in a downtrend.</h3>
+
+<h3 style="text-align:center; font-weight: bold">Adjusting the trend filter to go both long and short</h3>
+
+$`
+\begin{equation}
+\nonumber
+\begin{align*}
+\text{EWMAC > 0} &: \text{Go Long}\\
+\text{EWMAC < 0} &: \text{Go Short}
+\end{align*}
+\end{equation}
+`$
+
+$`N_{i,t} \; = \; \Large \frac{\text{Sign(trend)}_t \; \times \; \text{Capital} \; \times \; IDM \; \times \; \text{Weight}_i \; \times \; \tau}{\text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{\%i,t} \;} \times \normalsize(EWMAC > 0)`$
+
+<h3 style="text-align:center; font-weight: bold">Results</h3>
+
+Worse average return, worse average drawdown, worse average SR; however, these same statistics are better in aggregate.
+
+To compare & negate secular trends we can compare using linaer regression:\
+$`y_t \; = \; \alpha + \beta x_t + \epsilon_t`$ where $`y_t`$ is the monthly average returns, $`\alpha`$ is the difference between strategies, $`\beta`$ is how much the two strategies comove, $`x_t`$ is the base strategy like strategy 4, $`\epsilon`$ is the estimate of error.
 
 <hr>
 
