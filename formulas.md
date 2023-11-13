@@ -43,6 +43,8 @@
 
 - $`\text{Risk Adjusted Transaction Cost (Annualized)}, \; c_{i, \%}^* \; = \; c_i \; \times \; \text{Turnover}`$
 
+- $`\text{Risk Adjusted Holding Costs} \; = \; \text{Risk Adjusted Cost per Trade} \; \times \; \text{Rolls per Year} \; \times \; 2`$
+
 - $`\text{Annual Risk Adjusted Cost} \; = \; \text{Transaction Costs} \; + \; \text{Holding Costs}`$
 
 - $`\text{Annual Risk Adjusted Cost} \; = \; \text{Risk Adjusted Cost per Trade} \; \times \; (\text{Rolls per Year} \; \times \; 2 \; + \; \text{Turnover})`$
@@ -187,6 +189,16 @@ To compare strategies and negate secular trends, take linear regression between 
 
 - $`\text{Scaled Forecast (Average Absolute Value of 10)} \; = \; \Large{\frac{\text{Raw Forecast} \; \times \; 10}{\text{Average Absolute Value of Raw Forecast}}}`$
 
+- $`\text{Raw Combined Forecast}_{i,t} \; = \; \Large{\sum^{\text{\# filters}}_{j=1} (w_{i,j} \; \times \; f_{i,j,t})}`$
+
+- $`\text{Raw Combined Forecast}_{i,t} \; = \; \Large{\sum^{\text{Trading Variations}}_{j = 1}\;(W_{i,j} \; \times \; F_{i,j,t})}`$
+
+- $`\text{Scaled Combined Forecast}_{i,t} \; = \; \text{Raw Combined Forecast}_{i,t} \; \times \; FDM_j`$
+
+- $`\text{Capped Combined Forecast}_{i,t} \; = \; \text{max(min(Scaled Combined Forecast}_{i,t}, \; +20), \; -20)`$
+
+- $`N_{i,t} \; = \; \LARGE{\frac{\text{Capped Combined Forecast}_{i,t} \; \times \; \text{Capital} \; \times \; IDM \; \times \; \text{Weight}_i \; \times \; \tau}{10 \; \times \; \text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{\%i,t}}}`$
+
 - $`\text{Forecast Scalar} \; = \; \Large{\frac{10}{\text{Average Absolute Value of Raw Forecast}}}`$ \
 $`\text{Carver approximates this to} \approx 1.9 \; \text{for EWMAC(16, 64)}`$
 
@@ -246,3 +258,71 @@ $`where \; w \; \text{is the vector of position weights}, \; \Sigma \; \text{is 
 - $`\text{Jump Portfolio} \; \sigma \; = \; \sqrt{w \; \Sigma^{jump} \; w' \;}`$
 
 - $`\text{Jump Portfolio Risk Multiplier}, \; M_t(\text{Jump Portfolio}) \; = \; \Large{\text{min}(1, \; \frac{99^{th} \; \text{percentile of portfolio} \; \sigma}{\text{Jump Portfolio} \; \sigma_t})}`$
+
+### Excess Return by Future Type:
+- STIR — Short Term Interest Rates
+<hr>
+
+- $`\text{Excess Return} \; = \; \text{Spot Return} + \text{Carry}`$  
+
+- $`\text{Excess Return(Equities) = Spot Return + Dividends - Interest}`$
+
+- $`\text{Excess Return(Bonds) = Spot Return + Yield - Repo Rate}`$
+
+- $`\text{Excess Return(FX) = Spot Return + Deposit Rate - Borrowing Rate}`$
+
+- $`\text{Excess Return(STIR, Vol) = Spot Return + Current Spot Price - Futures Price}`$
+
+- $`\text{Excess Return(Metals) = Spot Return - Borrowing Cost - Storage Costs}`$
+
+- $`\text{Excess Return(Energy, Agricultural) = Spot Return - Borrowing Cost - Storage Costs + Convenience Yield}`$
+
+#### Carry:
+
+- $`\text{Raw Carry = Price of nearer futures contract - Price of Currently Held Contract}`$
+
+- $`\text{Raw Carry = Price of Currently Held Contract - Price of Further Out Contract}`$
+
+- $`\text{Expiry Difference in Years} \; = \; \Large{\frac{|\text{Months between Contracts}|}{12}}`$
+
+- $`\text{Annualized Raw Carry} \; = \; \Large{\frac{\text{Raw Carry}}{\text{Expiry Difference in Years}}}`$
+
+- $`\text{Carry} \; = \; \Large{\frac{\text{Annualized Raw Carry}}{\sigma_p \; \times \; 16}}`$
+
+- $`\text{Carry} \; = \; \Large{\frac{\text{Annualized Raw Carry}}{\sigma_\% \; \times \; \text{Current Contract Price}}}`$
+
+#### Carry Forecasting:
+
+- AMR — Adjusted Mean Return 
+
+<hr>
+
+- $`\text{Carry Forecast} \; = \; \Large{\frac{\text{Annualized Raw Carry}}{\sigma_p \; \times \; 16}}`$
+
+- $`\text{Smoothed Carry Forecast(Span) = EWMA}_{span}\text{(Carry Forecast)}`$
+
+- $`\text{Scaled Carry Forecast(Span)} \; = \; \text{Smoothed Carry Forecast(Span)} \; \times \; \text{Forecast Scalar}`$
+
+- $`AMR \; = \; \Large \frac{\text{Annual Return}}{\text{Target Risk}}`$
+- $`\text{Capped Carry Forecast(Span)} \; = \; \text{max(min(Scaled Forecast(Span)}, \; +20 \;), \; -20)`$
+- $`\text{Median Absolute Carry, MAC} = \text{Median}(\Large{\frac{\text{Average Scaled Forecast}}{\text{Forecast Scalar}}})`$
+
+- $`\% \text{Carry Realized} = AMR / MAC`$. 
+
+### Volatility:
+- $`\text{Instrument Volatility}, \; V_{i,t} \; = \; \LARGE{\frac{\sigma_{\%i,t}}{mean(\sigma_{\%i,t - 2560}, \; \sigma_{\%i,t - 2559}, \; ..., \; \sigma_{\%i,t})}}`$ 
+
+- $`\text{Quantile Point for Instrument} \; i, \; Q_{i,t} \; = \; \text{Quantile of} \; V_{i,t} \; \text{in Distribution}(V_{i,0} \; ... \; V_{i,t})`$
+
+- $`\text{Volatility Multiplier}, \; M_{i,t} \; = \; EWMA_{span=10}(2 \; - \; 1.5 \; \times \; Q_{i,t})`$
+
+#### Smoothed Volatility Forecast:
+- $`\text{Raw EWMA(N) forecast}_{i,t} \; = \; \Large{\frac{(EWMA\_N_{i,t} \; - \; EWMA\_4N_{i,t})}{\sigma_{p,i,t}}}`$
+
+- $`\text{Adjusted raw EWMA(N) forecast}_{i,t} \; = \; \text{Raw forecast}_{N,i,t} \; \times \; M_{i,t}`$
+
+#### Whereas for carry:
+
+- $`\text{Smoothed Carry(Span) Forecast}_{i,t} \; = \; EWMA_{span}(\text{Carry Forecast}_{i,t})`$
+
+- $`\text{Adjusted Smoothed Carry(span) forecast}_{i,t} \; = \; \text{Smoothed carry(span) forecast}_{i,t} \; \times \; M_{i,t}`$
