@@ -1102,3 +1102,448 @@ Forecast Weights for a given set of EWMAC and Carry trading rule variations
 Now that we have a combined forecast with the correct scale, it's just a matter of applying the usual procedure for capping, position sizing calculation and buffering.
 
 Carver notes, it is a little weird that the SR for an individual instrument is lower for trend than for a long only benchmark, yet the aggregate SR is much higher. Another way of looking at this is to consider the ratio between these two SRs, individual and aggregate, a Sharpe Ratio ratio (SRR). The SRR reflects the realized diversification benefits in risk adjusted returns from diversifying across multiple instruments. The combined strategy has a median SR a fraction below carry but an aggregate SR that is better than trend. If you were trading a single instrument, you face a stark choice between a better SR (carry) or a nicer skew (trend).
+
+<h1 style="text-align:center; font-weight: bold">Strategy 12: Adjusted trend</h1>
+
+Adjust the size of a forecast to reflect the likely probability of a sudden reversal.
+
+<h2 style="font-weight: bold">Strategy 12:</h2>
+<h3>A variation on any strategy that uses EWMAC trend filters. Adjust the trend forecast according to the probability of a reversal.</h3>
+
+<hr>
+
+<h3 style="text-align:center; font-weight: bold">Forecasted and Actual Risk Adjusted Returns</h3>
+
+Remember from Part One that a forecast is an expected risk adjusted return. We know that these forecasts are broadly correct since they result in profitable strategies but there is a great deal we don't know. Carver noted that evidence in favor of using trend strength in a forecast to size positions was weeak, at least for the EWMAC64 and introduced forecast capping as a fait accompli.
+
+Forecasting and capping imply that there is a linear relationship between trend strength and expected risk adjusted return but only up until the forecast cap kicks in.
+
+The fastest two EWMAC rules we see a strong bounce back after a strong negative trend, without a similar effect for positive trends (the dead cat bounce). The opposite effect can be seen in volatility markets (after a strong positive trend in VIX, which would be associated with falling equity prices, vol tends to fall sharply).
+
+But this only really applies to equities so we should be careful about applying asset class specific rules. They need to be broad and robust with lots of data to test.
+
+<hr>
+
+<h3 style="text-align:center; font-weight: bold">The role of volatility</h3>
+
+The issue with particularly large forecasts is that they're generally less effective at predicting than small forecasts.
+
+Why is this? Remember a trend forecast is:
+
+_the difference between two smoothed prices divided by the standard deviation of price changes_
+
+There are two possible causes for this outsized forecast:
+1. Prices have changed a lot: a strong trend
+2. Recent volatility has been especially low
+
+<hr>
+
+<h3 style="text-align:center; font-weight: bold">Adjusting trend forecasts for trend strength</h3>
+
+As a general rule, avoid making adjustments too complex or you risk overfitting. We also want to avoid using asset class specific effects as there isn't enough statisticcal significance to get robust estimates for the required adjustments. Because different instruments have different behavior in selloffs and rallies, any adjustment that is applied globally to all instruments ought to be symmetrical.
+
+Carver suggests this approach:
+- For EWMAC2, use a "double V" forecast mapping
+- For EWMAC4, "scale and cap" the forecast at +15 instead of +20
+- For EWMAC64, "scale and cap" the forecast at +15 instead of +20
+- For all other filters, keep the forecast unchanged
+
+The "double V" mapping works as follows, and replaces the normal forecast capping stage. Taking the original scaled forecast for the EWMAC2 trend filter, F:
+
+$`F < -20: \text{Capped forecast} = 0 `$ \
+$`-20 < F < -10: \text{Capped forecast} = -40 - (2 \times F)`$ \
+$`-10 < F < +10: \text{Capped forecast} = 2 \times F`$ \
+$`+10 < F < +20: \text{Capped forecast} = +40 - (2 \times F)`$ \
+$`F > +20: \text{Capped forecast} = 0`$
+
+Extreme forecasts are reduced. The downside of doubling these modest forecasts is that it increases trading costs in order to meet the average absolute forecast value of 10.
+
+The "scaled and cap" mapping also replaces the normal forecast capping stage and prevents us from increasing our froecast once it reaches an absolute value of +15. The correct multiplier here is 1.25. Taking the original scaled forecast for the EWMAC4 or EWMAC64 trend filter, F:
+
+$`F < -15: \text{Capped forecast} = -15 \times 1.25 = -18.75 `$ \
+$`-15 < F < +15: \text{Capped forecast} = 1.25 \times F`$ \
+$`F > +15: \text{Capped forecast} = +18.75`$
+
+<h3 style="text-align:center; font-weight: bold">Evaluating the adjusted forecasts</h3>
+Very small impact, Carver, himself, wouldn't trade it but hard to justify the increased complexity.
+
+<hr>
+
+<h1 style="text-align:center; font-weight: bold">Strategy 13: Trend followign and carry in different risk regimes</h1>
+
+Different levels of volatility affect trading strategies in different ways. We try to scale our positions according to our current estimate of risk. Beyond that, you would expect that trend following strategies would like markets to move, whilst carry strategies should prefer stability. 
+
+But there is a big difference between a steadily rising market, such as the 2017 S&P 500, and a market that is veering sharply from one extreme to another. The latter will usually be highly unprofitable for trend style trading, whilst the former is a dream come true.
+
+<h2 style="font-weight: bold">Strategy 13:</h2>
+<h3>A variation on any strategy that trades EWMAC and carry where we adjust the strength of the forecast according to the volatility regime</h3>
+
+<h3 style="text-align:center; font-weight: bold">Defining the level of volatility</h3>
+
+We must find some way of defining the current level of volatility for a given instrument and it must be backward looking measure or we won't be able to use it to improve our trading. And it must be a different measure for each instrument, as crisis can be idiosyncratic as well as global. Carver uses a relatively simple measure, which calculates relative volatility of an instrument compared to its long run average. Let $\sigma_{\%i,t}$ be the current estimated level of percentage standard deviation of returns for a given market $i$, measured using the method developed in strategy three. Then the relative level of volatility $V_{i,t}$ is the current estimate divided by the ten-year rolling average. Assuming 256 business days in a year that would be:
+
+$`V_{i,t} \; = \; \LARGE{\frac{\sigma_{\%i,t}}{mean(\sigma_{\%i,t - 2560}, \; \sigma_{\%i,t - 2559}, \; ..., \; \sigma_{\%i,t})}}`$ 
+
+Carver takes the distribution of relative volatility. He uses anything below 25 percentile as low volatility, above 75 percentile as high, anything in between is medium.
+
+For him:
+
+- Low Vol: V less than 0.77
+- Medium Vol: V between 0.77 and 1.12
+- High Vol: V more than 1.12
+
+<h3 style="text-align:center; font-weight: bold">Defining the level of volatility</h3>
+
+Performance is bad when moving from low volatility to high volatility. EWMAC rules are sure fire losers when volatility increases.
+
+<h3 style="text-align:center; font-weight: bold">Adjusting forecasts for volatility regimes</h3>
+We could stop trading when volatility hits the highest regimes but selling everything and buying again causes high trading costs.
+
+We could just scale our position. This is the quantile point based on historical data for a given instrument:
+
+$`Q_{i,t} \; = \; \text{Quantile of} \; V_{i,t} \; \text{in Distribution}(V_{i,0} \; ... \; V_{i,t})`$
+
+This will vary between 0 (lowest value we've seen so far) and 1 (for the highest). 0.5 would indicate this is the median point in the historical distribution. We then calculate a vol multiplier, M:
+
+$`M_{i,t} \; = \; EWMA_{span=10}(2 \; - \; 1.5 \; \times \; Q_{i,t})`$
+
+If our volatility is especially low, with Q = 0.0 then we'd multiply our forecast by two, taking double the normal position. Conversely, if volatility is at historical highs, with Q = 1.0, we would halve our forecast. To reduce trading costs, apply a EWMA with a ten-day smooth.
+
+$`\text{Raw EWMA(N) forecast}_{i,t} \; = \; \Large{\frac{(EWMA\_N_{i,t} \; - \; EWMA\_4N_{i,t})}{\sigma_{p,i,t}}}`$
+
+$`\text{Adjusted raw EWMA(N) forecast}_{i,t} \; = \; \text{Raw forecast}_{N,i,t} \; \times \; M_{i,t}`$
+
+Whereas for carry:
+
+$`\text{Smoothed Carry(Span) Forecast}_{i,t} \; = \; EWMA_{span}(\text{Carry Forecast}_{i,t})`$
+
+$`\text{Adjusted Smoothed Carry(span) forecast}_{i,t} \; = \; \text{Smoothed carry(span) forecast}_{i,t} \; \times \; M_{i,t}`$
+
+# Formulas
+
+## Legend
+- $`^* \; — \; \text{annualized values} `$
+- $`\% \; — \; \text{percent values}`$
+
+## Definitions
+### Assumptions:
+- $`\text{Business days in a year} = 256 `$
+
+
+### General:
+- $`\text{Multiplier (Contract Unit) — dollar value of each point of price movement}`$
+
+- $`\text{Tick Size (Minimum Price Fluctuation) — smallest unit price is quoted in}`$
+
+- $`\text{Front Month — contract with soonest expiration}`$
+<hr>
+
+- $`\text{Notional Exposure per Contract (\$)} = \text{Multiplier (\$)} \; \times \; \text{Price}`$
+
+- $`\text{Tick Value} = \text{Multiplier} \; \times \; \text{Tick Size}`$
+
+### Costs:
+- $`\text{Commission Cost — as determined by the exchange and broker}`$
+<hr>
+
+- $`\text{Spread Cost (Price Points)} = \text{Price Paid(Received)} \; - \; \text{Mid Price}`$
+
+- $`\text{Spread Cost (Currency)} = \text{Multiplier} \times \text{Spread Cost (Price Points)}`$
+
+- $`\text{Costs (in SR Terms)} = \Large{\frac{\text{Annual Cost}}{\text{Annualized Standard Deviation}}}`$
+
+- $`\text{Total Cost per Trade (Currency)} = \text{Spread Cost (Currency) + Commission per Contract}`$
+
+- $`\text{Total Cost per Trade (\%)} = \Large{\frac{\text{Total Cost per Trade (Currency)}}{\text{Price} \; \times \; \text{Multiplier}}}`$
+
+- $`\text{Total Cost per Trade (\%)} \; = \; \text{Total Cost per Trade (\%)}`$
+
+- $`\text{Risk Adjusted Cost per Trade}_\% = \Large{\frac{\text{Total Cost per Trade (\%)}}{\sigma_\%}}`$
+
+- $`\text{Risk Adjusted Transaction Cost}, \; c_{i, \%} = \text{Risk Adjusted Cost per Trade} \; \times \; N; \; where \; N \; = \; \text{positions traded}`$
+
+- $`\text{Risk Adjusted Transaction Cost (Annualized)}, \; c_{i, \%}^* \; = \; c_i \; \times \; \text{Turnover}`$
+
+- $`\text{Risk Adjusted Holding Costs} \; = \; \text{Risk Adjusted Cost per Trade} \; \times \; \text{Rolls per Year} \; \times \; 2`$
+
+- $`\text{Annual Risk Adjusted Cost} \; = \; \text{Transaction Costs} \; + \; \text{Holding Costs}`$
+
+- $`\text{Annual Risk Adjusted Cost} \; = \; \text{Risk Adjusted Cost per Trade} \; \times \; (\text{Rolls per Year} \; \times \; 2 \; + \; \text{Turnover})`$
+
+### Returns:
+<hr>
+
+- $`\text{Total Return} = \text{Spot Return} \; + \; \text{Dividends}`$
+
+- $`\text{Excess Returns} = \text{Total Return} \; + \; \text{Dividends} \; - \; \text{Interest}`$
+
+- $`\text{Carry} = \text{Dividends} \; - \; \text{Interest}`$
+
+- $`N_t \; \text{— number of contracts held at time} \; t`$
+
+- $`\text{Return(in price points)}, \; R^{Points}_t \; = \; N_{t-1} \; \times \; (P_t - P_{t-1})`$
+
+- $`\text{Return(in currency of future)}, \; R^{Instr}_t \; = \; R^{Points}_t \; \times \; \text{Multiplier}`$
+
+- $`\text{Return(in base currency)}, \; R^{Base}_t \; = \; R^{Instr}_t \; \times \; \text{FX Rate}`$
+
+- $`\text{Return(in \%)}, \; R^\%_t \; = \; \Large{\frac{100 \; \times \; R^{Base}_t}{\text{Capital}_{t-1}}}`$
+
+- $`\text{Annualized Daily Returns} \; = \; 256 (\text{Business Days}) \; \times \; \overline{\text{Daily Return}}`$
+
+- $`\text{Mean Return(returns} \;  r^\%_1 \; ... \; r^\%_T), \; r^* = \LARGE{\frac{r^\%_t}{T} \;  + \frac{r^\%_{t-1}}{T} \; + \; ... \; + \; \frac{r^\%_1}{T}}`$
+
+- $`\text{Standard Deviation of \% Returns}, \; \LARGE{\sigma \; = \; \sqrt{\frac{(r^\%_T \; - \; r^*)^2}{T} \; + \; \frac{(r^\%_{T-1} \; - \; r^*)^2}{T} \; + \; ... \; + \; \frac{(r^\%_{1} \; - \; r^*)^2}{T}}}`$
+
+- $`\text{Annualized Standard Deviation}, \; \sigma_{annual} \; = \; \sigma \; \times \sqrt{256}`$
+
+### Risk Adjusted:
+<hr>
+
+- $`\text{Sharpe Ratio (Risk Adjusted Returns)}, \; SR \; = \; \LARGE{\frac{R^\%_t}{\sigma}}`$
+
+- $`\text{Annualized Pre-Cost} \; SR, \; SR^* \; = \; SR \; \times \; \sqrt{256}`$
+
+- $`\text{Instrument Annual SR}_i \; = \; SR^* - (T \times c_i); \; where \; T = \text{Turnover}, \; \; i`$
+
+- $`\text{Instrument Annual Mean}_i \; = \; \tau \; \times \; [SR^* \; - \; (T \; \times \; c_i)]`$
+
+- $`\text{Instrument}, \; i, \; \text{ Mean in Portfolio} \; = \; \text{Weight}_i \; \times \; IDM \; \times \; \tau \; \times \; [SR^* \; - \; (T \; \times \; c_i)]`$
+
+- $`\text{Annual Portfolio Expected Return} \; = \; \sum_{i=1}^{n}(\text{Weight}_i \; \times \; IDM \; \tau \; \times \; [SR^* \; - \; (T \; \times \; c_i)]); \; where \; n \; = \; \text{instruments in portfolio}`$
+
+- $`\text{Portfolio} \; \sigma \; = \; IDM \; \times \; \tau \; \times \; \sqrt{w \; \Sigma \; w'}; \; where \; w \; \text{is the vector of instrument weights}, \; \Sigma \; \text{is the correlation matrix of sub-strategy returns}`$
+
+- $`\text{Portfolio SR} \; = \; \LARGE{\frac{\sum_{i=1}^{N}(\text{Weight}_i \; \times \; [SR^* - (T \; \times \; c_i)])}{\sqrt{w \; \Sigma \; w' \;}}}`$
+
+### Tails:
+<hr>
+
+To compare returns to a Normal (Gaussian) Distribution
+
+- $`\text{Lower Percentile Ratio (of \% returns)} \; = \; \Large{\frac{\text{1st Percentile}}{\text{30th Percentile}}}`$
+
+- $`\text{Upper Percentile Ratio (of \% returns)} \; = \; \Large{\frac{\text{99th Percentile}}{\text{70th Percentile}}}`$
+
+- $`\text{Reference Ratio} \; = \; \Large{\frac{\text{Inverse CDF(0.99)}}{\text{Inverse CDF(0.70)}}} \; \normalsize{=} \; \Large{\frac{\text{Inverse CDF(0.01)}}{\text{Inverse CDF(0.30)}}} \;\normalsize{\approx \; \Large{4.4395}}`$
+
+- $`\text{Relative Lower Fat Tail Ratio} \; = \; \Large{\frac{\text{Lower Percentile Ratio}}{\text{Reference Ratio}}}`$
+
+- $`\text{Relative Upper Fat Tail Ratio} \; = \; \Large{\frac{\text{Upper Percentile Ratio}}{\text{Reference Ratio}}}`$
+
+
+### Exposure:
+<hr>
+
+- $`\text{Notional Exposure (Base Currency)} \; = \; \text{Multiplier} \; \times \; \text{Price} \; \times \; \text{FX Rate}`$
+
+- $`\text{Risk of a Single Contract}, \; \sigma \; \text{(Contract, Base Currency)}\; = \; \text{Notional Exposure (Base Currency)} \; \times \; \sigma_\%`$
+
+- $`\text{Position Risk for N Contracts}, \; \sigma\text{(Position, Base Currency)} \; = \; \sigma\text{(Contract, Base Currency)} \; \times \; N`$
+
+### Risk:
+<hr>
+
+- $`\tau \; \text{— risk target (as standardized annual deviation)}`$
+
+- $`\text{Risk Target in Currency}, \; \sigma \; \text{(Target, Base Currency)} \; = \; \text{Capital(Base)} \; \times \; \tau`$
+
+- $`N = \Large{\frac{\text{Capital} \; \times \; \tau}{\text{Multiplier} \; \times \; \text{FX Rate} \; \times \; \sigma_\%}}`$
+
+- $`\text{Optimal Risk Given Performance} \; = \; \Large{\frac{100 \; \times \; SR}{2}}`$
+
+
+### Ratios:
+<hr>
+
+- $`\text{Contract Leverage} = \Large{\frac{\text{Notional Exposure per Contract}}{Capital}}`$
+
+- $`\text{Volatility} \; = \; \Large{\frac{\tau}{\sigma_\%}}`$
+
+- $`N = \Large{\frac{\text{Volatility Ratio}}{\text{Contract Leverage}}}`$
+
+- $`\text{Leverage Ratio} \; = \; \Large{\frac{\text{Total Notional Exposure}}{\text{Capital}}} \; \normalsize{=} \; \Large{\frac{N \; \times \; \text{Notional Exposure per Contract}}{\text{Capital}}} \; \normalsize{=} \; N \; \times \; \text{Contract Leverage Ratio} \; = \; \text{Volatility Ratio}`$
+
+### Rolling Averages:
+<hr>
+
+- $`\text{Moving Average of Returns (Window = N)}, \; r^*_t \; = \LARGE{\frac{r_t}{N} \; + \; \frac{r_{t-1}}{N} \; + \; ... \; + \; \frac{r_{t-N+1}}{N}}`$
+
+- $`\sigma(N)_t \; = \; \Large{\sqrt{\frac{(r_t \; - \; r^*_t)^2}{N} \; + \; \frac{(r_{t-1} \; - \; r^*_t)^2}{N} \; + \; ... \; + \; \frac{(r_{t-N+1} \; - \; r^*_t)^2}{N}}}`$
+
+#### NOTE: if calculating $`\sigma_\%`$, annualized % risk, use % returns for $`r_t`$ and multiply by 16
+<hr>
+
+- $`\text{EWMA Returns (of N returns)}, \; r^*(\alpha)_t = \alpha r_t \; + \; \alpha(1 - \alpha)r_{t-1} \; + \; \alpha(1 - \alpha)^2r_{t-2} \; + \; ...`$
+
+- $`\text{EWMA Standard Deviation}, \; \sigma(\alpha)_t = \; \sqrt{\alpha(r_t \; - \; r^*_t)^2 + \alpha(1-\alpha)(r_{t-1} - r^*_t)^2 + \alpha(1-\alpha)^2(r_{t-2} - r^*_t)^2 \; + \; ...}`$
+
+- $`\alpha = \Large{\frac{2}{N+1}}`$
+
+### Trends:
+<hr>
+
+- $`\text{Moving Average Crossover}, \; MAC(n_1, n_2)\; = \; MA(n_2) \; - \; MA(n_1)`$ \
+e.g. $`EWMAC(64, 256) \; = \; EWMA(64) \; - \; EWMA(256)`$
+
+- $`\text{EWMAC}_n \; = \; \text{EWMAC}(n, \; 4n)`$
+
+- $`=> N_i = \LARGE{\frac{\text{Capital} \; \times \; IDM \; \times \; \text{Weight}_{i,t} \; \times \; \tau}{\text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{\%i,t}}}(EWMAC \; > \; 0)`$
+
+- $`\text{Trend} = \begin{cases}
+ & \text{Long(+1) if } EWMAC > 0\\ 
+ & \text{Short(-1) if } EWMAC < 0
+\end{cases}`$
+
+- $`=> N_{i,t} \; = \; \LARGE{\frac{\text{Trend}_t \; \times \; \text{Capital} \; \times \; IDM \; \times \; \text{Weight}_i \; \times \; \tau}{\text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{\%i,t}}}`$
+
+### Comparing Strategies:
+To compare strategies and negate secular trends, take linear regression between two strategies
+<hr>
+
+- $`y_t \; = \; \alpha \; + \; \beta x_t \; + \; \epsilon_t; \; where \; \alpha \; \text{is the difference in strategies}, \; \beta \; \text{is the comovement of both strategies}, \; \epsilon \; \text{is the error}`$
+
+### Forecasts:
+<hr>
+
+- $`\text{Raw Forecast} \; = \; \LARGE{\frac{\text{Fast EWMA} \; - \; \text{Slow EWMA}}{\sigma^*_p}} \; \normalsize where \; \sigma^*_p \; = \; \LARGE{\frac{\text{Price} \; \times \; \sigma^*_\%}{16}}`$
+
+- $`\text{Scaled Forecast (Average Absolute Value of 10)} \; = \; \Large{\frac{\text{Raw Forecast} \; \times \; 10}{\text{Average Absolute Value of Raw Forecast}}}`$
+
+- $`\text{Raw Combined Forecast}_{i,t} \; = \; \Large{\sum^{\text{\# filters}}_{j=1} (w_{i,j} \; \times \; f_{i,j,t})}`$
+
+- $`\text{Raw Combined Forecast}_{i,t} \; = \; \Large{\sum^{\text{Trading Variations}}_{j = 1}\;(W_{i,j} \; \times \; F_{i,j,t})}`$
+
+- $`\text{Scaled Combined Forecast}_{i,t} \; = \; \text{Raw Combined Forecast}_{i,t} \; \times \; FDM_j`$
+
+- $`\text{Capped Combined Forecast}_{i,t} \; = \; \text{max(min(Scaled Combined Forecast}_{i,t}, \; +20), \; -20)`$
+
+- $`N_{i,t} \; = \; \LARGE{\frac{\text{Capped Combined Forecast}_{i,t} \; \times \; \text{Capital} \; \times \; IDM \; \times \; \text{Weight}_i \; \times \; \tau}{10 \; \times \; \text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{\%i,t}}}`$
+
+- $`\text{Forecast Scalar} \; = \; \Large{\frac{10}{\text{Average Absolute Value of Raw Forecast}}}`$ \
+$`\text{Carver approximates this to} \approx 1.9 \; \text{for EWMAC(16, 64)}`$
+
+- $`N_i \; = \; \LARGE{\frac{\text{Scaled Forecast}_{i,t} \; \times \; \text{Capital} \; \times \; IDM \; \text{Weight}_i \; times \; \tau}{10 \; \times \; \text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{\%i,t}}}`$ \
+Note: Since average value of Scaled Forecast = 10, we have to divide by 10 
+
+- $`\text{Capped Forecast}_{i,t} \; = \; \max(\min(\text{Scaled Forecast}_{i,t}, \; +20), \; -20)`$ \
+$`\text{range} \; = \; [-20, 20]`$
+
+### Weighted Positions:
+<hr>
+
+- $`\text{Number of Positions in Instrument} \; i, \; N_{i,t} \; = \; \LARGE{\frac{\text{Capital} \; \times \; \text{Weight}_i \; \times \; \tau}{\text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; \text{FX}_{i,t} \; \times \; \sigma_{\%,i,t}}}`$
+
+- $`IDM = \Large{\frac{\text{Target Risk}}{\text{Realized Aggregate Risk}}} \normalsize{\; \text{where IDM is} \; [1, \; \infty)}`$
+
+- $`N_i \; = \; \LARGE{\frac{\text{Capital} \; \times \; \text{IDM} \; \times \; \text{Weight}_i \; \times \; \tau}{\text{Futures Multiplier}_i \; \times \; \text{Price}_i \; \times \; \text{FX}_i \; \times \; \sigma_{\%,i}}}`$
+
+### Buffering:
+- $`F \; — \; \text{fraction of average long position as a buffer (e.g. 0.10)}`$
+<hr>
+
+- $`B_{i,t} \; = \; \LARGE{\frac{F \; \times \; \text{Capital} \; \times \; IDM \; \times \; \text{Weight}_i \; \times \; \tau}{\text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t} \; \times \; \sigma_{i,t}}}`$
+
+- $`\text{Lower Bound}, \; B^L_{i,t} \; = round(N_{i,t} \; - \; B_{i,t})`$
+
+- $`\text{Upper Bound}, \; B^U_{i,t} \; = round(N_{i,t} \; + \; B_{i,t})`$
+
+- $`\text{Current Position}, \; C_{i,t}`$
+
+- $`Decision = \begin{cases}
+ & B^U_{i,t} \; \leq \; C_{i,t} \; \leq \; B^L_{i,t} \; : \; \text{No Trading Required} \\ 
+ & C_{i,t} \; < \; B^L_{i,t} \; : \; \text{Buy} \; (B^L_{i,t} \; - \; C_{i,t}) \;  \text {Contracts} \\ 
+ & C_{i,t} \; > \; B^U_{i,t} \; : \; \text{Sell} \; (C_{i,t} \; - \; B^U_{i,t}) \;  \text {Contracts} 
+\end{cases}`$
+
+
+### Multipliers:
+<hr>
+
+- $`\text{Portfolio} \; \sigma \; = \; \sqrt{w \; \Sigma \; w' \;};`$ \
+$`where \; w \; \text{is the vector of position weights}, \; \Sigma \; \text{is the covariance matrix of percent returns}`$
+
+- $`w_{i,t} \; = \; \LARGE{\frac{N_{i,t} \; \times \; \text{Multiplier}_i \; \times \; \text{Price}_{i,t} \; \times \; FX_{i,t}}{\text{Capital}}}`$
+
+- $`99^{th} \; \text{percentile of portfolio} \; \sigma`$
+
+- $`\text{Estimated Portfolio Risk Multiplier}, \; M_t(\text{Portfolio Risk}) \; = \; \Large{\text{min}(1, \; \frac{99^{th} \; \text{percentile of portfolio} \; \sigma}{\text{Portfolio} \; \sigma_t})}`$
+
+
+#### Jump Portfolio:
+1. Get annualized standard deviation for each instrument from percentage returns
+2. $`\text{Calculate} \;  99^{th} \; \text{percentile from the distribution of standard deviations for each instrument.}`$
+
+- $`\Sigma^{jump} \; — \; \text{covariance matrix of annualized standard deviations and correlation of percent returns}`$
+
+- $`\text{Jump Portfolio} \; \sigma \; = \; \sqrt{w \; \Sigma^{jump} \; w' \;}`$
+
+- $`\text{Jump Portfolio Risk Multiplier}, \; M_t(\text{Jump Portfolio}) \; = \; \Large{\text{min}(1, \; \frac{99^{th} \; \text{percentile of portfolio} \; \sigma}{\text{Jump Portfolio} \; \sigma_t})}`$
+
+### Excess Return by Future Type:
+- STIR — Short Term Interest Rates
+<hr>
+
+- $`\text{Excess Return} \; = \; \text{Spot Return} + \text{Carry}`$  
+
+- $`\text{Excess Return(Equities) = Spot Return + Dividends - Interest}`$
+
+- $`\text{Excess Return(Bonds) = Spot Return + Yield - Repo Rate}`$
+
+- $`\text{Excess Return(FX) = Spot Return + Deposit Rate - Borrowing Rate}`$
+
+- $`\text{Excess Return(STIR, Vol) = Spot Return + Current Spot Price - Futures Price}`$
+
+- $`\text{Excess Return(Metals) = Spot Return - Borrowing Cost - Storage Costs}`$
+
+- $`\text{Excess Return(Energy, Agricultural) = Spot Return - Borrowing Cost - Storage Costs + Convenience Yield}`$
+
+#### Carry:
+
+- $`\text{Raw Carry = Price of nearer futures contract - Price of Currently Held Contract}`$
+
+- $`\text{Raw Carry = Price of Currently Held Contract - Price of Further Out Contract}`$
+
+- $`\text{Expiry Difference in Years} \; = \; \Large{\frac{|\text{Months between Contracts}|}{12}}`$
+
+- $`\text{Annualized Raw Carry} \; = \; \Large{\frac{\text{Raw Carry}}{\text{Expiry Difference in Years}}}`$
+
+- $`\text{Carry} \; = \; \Large{\frac{\text{Annualized Raw Carry}}{\sigma_p \; \times \; 16}}`$
+
+- $`\text{Carry} \; = \; \Large{\frac{\text{Annualized Raw Carry}}{\sigma_\% \; \times \; \text{Current Contract Price}}}`$
+
+#### Carry Forecasting:
+
+- AMR — Adjusted Mean Return 
+
+<hr>
+
+- $`\text{Carry Forecast} \; = \; \Large{\frac{\text{Annualized Raw Carry}}{\sigma_p \; \times \; 16}}`$
+
+- $`\text{Smoothed Carry Forecast(Span) = EWMA}_{span}\text{(Carry Forecast)}`$
+
+- $`\text{Scaled Carry Forecast(Span)} \; = \; \text{Smoothed Carry Forecast(Span)} \; \times \; \text{Forecast Scalar}`$
+
+- $`AMR \; = \; \Large \frac{\text{Annual Return}}{\text{Target Risk}}`$
+- $`\text{Capped Carry Forecast(Span)} \; = \; \text{max(min(Scaled Forecast(Span)}, \; +20 \;), \; -20)`$
+- $`\text{Median Absolute Carry, MAC} = \text{Median}(\Large{\frac{\text{Average Scaled Forecast}}{\text{Forecast Scalar}}})`$
+
+- $`\% \text{Carry Realized} = AMR / MAC`$. 
+
+### Volatility:
+- $`\text{Instrument Volatility}, \; V_{i,t} \; = \; \LARGE{\frac{\sigma_{\%i,t}}{mean(\sigma_{\%i,t - 2560}, \; \sigma_{\%i,t - 2559}, \; ..., \; \sigma_{\%i,t})}}`$ 
+
+- $`\text{Quantile Point for Instrument} \; i, \; Q_{i,t} \; = \; \text{Quantile of} \; V_{i,t} \; \text{in Distribution}(V_{i,0} \; ... \; V_{i,t})`$
+
+- $`\text{Volatility Multiplier}, \; M_{i,t} \; = \; EWMA_{span=10}(2 \; - \; 1.5 \; \times \; Q_{i,t})`$
+
+#### Smoothed Volatility Forecast:
+- $`\text{Raw EWMA(N) forecast}_{i,t} \; = \; \Large{\frac{(EWMA\_N_{i,t} \; - \; EWMA\_4N_{i,t})}{\sigma_{p,i,t}}}`$
+
+- $`\text{Adjusted raw EWMA(N) forecast}_{i,t} \; = \; \text{Raw forecast}_{N,i,t} \; \times \; M_{i,t}`$
+
+#### Whereas for carry:
+
+- $`\text{Smoothed Carry(Span) Forecast}_{i,t} \; = \; EWMA_{span}(\text{Carry Forecast}_{i,t})`$
+
+- $`\text{Adjusted Smoothed Carry(span) forecast}_{i,t} \; = \; \text{Smoothed carry(span) forecast}_{i,t} \; \times \; M_{i,t}`$
